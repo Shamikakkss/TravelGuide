@@ -6,7 +6,7 @@ import {
   initialReviews,
   initialSubmissions
 } from '~/data/sriLankaData'
-import type { Place, Stay, District, Town, Review, Submission, FilterState, PlaceCategory, StayType } from '~/types'
+import type { Place, Stay, District, Town, Review, Submission, FilterState, PlaceCategory, StayType, User } from '~/types'
 
 export const useTravelData = () => {
   // Global reactive states
@@ -19,14 +19,82 @@ export const useTravelData = () => {
   const likedPlaceIds = useState<string[]>('likedPlaceIds', () => ['place-nine-arch'])
   const likedStayIds = useState<string[]>('likedStayIds', () => ['stay-mirissa-ocean-villa'])
 
-  // Current logged in mock user / role
-  const currentUser = useState('currentUser', () => ({
-    id: 'usr-current',
-    name: 'Shaminda (Traveler)',
-    email: 'traveler@travelguide.lk',
-    role: 'admin' as 'admin' | 'user' | 'owner',
+  // Auth & Session State
+  const currentUser = useState<User | null>('currentUser', () => ({
+    id: 'usr-sachintha',
+    name: 'Sachintha (Traveler)',
+    email: 'sachintha@travelguide.lk',
+    role: 'admin',
     avatarUrl: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&auto=format&fit=crop'
   }))
+
+  const authModalOpen = useState<boolean>('authModalOpen', () => false)
+  const authModalMode = useState<'login' | 'register'>('authModalMode', () => 'login')
+  const authPromptMessage = useState<string>('authPromptMessage', () => '')
+
+  const openAuthModal = (mode: 'login' | 'register' = 'login', message: string = '') => {
+    authModalMode.value = mode
+    authPromptMessage.value = message
+    authModalOpen.value = true
+  }
+
+  const login = (email: string, role: 'user' | 'owner' | 'admin' = 'user', name?: string) => {
+    currentUser.value = {
+      id: `usr-${Date.now()}`,
+      name: name || (email.split('@')[0] || 'Traveler'),
+      email: email,
+      role: role,
+      avatarUrl: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&auto=format&fit=crop'
+    }
+    authModalOpen.value = false
+    authPromptMessage.value = ''
+  }
+
+  const logout = () => {
+    currentUser.value = null
+  }
+
+  const quickDemoLogin = (role: 'user' | 'owner' | 'admin') => {
+    if (role === 'admin') {
+      login('admin@travelguide.lk', 'admin', 'Sachintha (Admin)')
+    } else if (role === 'owner') {
+      login('villaowner@travelguide.lk', 'owner', 'Sunil (Villa Owner)')
+    } else {
+      login('traveler@travelguide.lk', 'user', 'Kasun (Traveler)')
+    }
+  }
+
+  // Platform Member Ratings (1 rating per member constraint)
+  const platformRatingStats = useState('platformRatingStats', () => ({
+    average: 4.9,
+    totalCount: 348
+  }))
+  
+  // Track IDs of users who already rated the platform
+  const ratedPlatformUserIds = useState<string[]>('ratedPlatformUserIds', () => [])
+
+  const hasUserRatedPlatform = computed(() => {
+    if (!currentUser.value) return false
+    return ratedPlatformUserIds.value.includes(currentUser.value.id)
+  })
+
+  const submitPlatformRating = (score: number): { success: boolean; message: string } => {
+    if (!currentUser.value) {
+      openAuthModal('login', 'Please log in or create an account to rate TravelGuide LK.')
+      return { success: false, message: 'Authentication required' }
+    }
+
+    if (ratedPlatformUserIds.value.includes(currentUser.value.id)) {
+      return { success: false, message: 'You have already submitted a rating for TravelGuide LK.' }
+    }
+
+    const currentTotal = platformRatingStats.value.average * platformRatingStats.value.totalCount
+    platformRatingStats.value.totalCount += 1
+    platformRatingStats.value.average = Number(((currentTotal + score) / platformRatingStats.value.totalCount).toFixed(1))
+    ratedPlatformUserIds.value.push(currentUser.value.id)
+
+    return { success: true, message: 'Thank you for your rating!' }
+  }
 
   // Dark mode state
   const isDarkMode = useState<boolean>('isDarkMode', () => true)
@@ -63,8 +131,13 @@ export const useTravelData = () => {
     return towns.value.filter(t => t.districtId === foundDistrict.id)
   }
 
-  // Toggle Like Place
-  const toggleLikePlace = (placeId: string) => {
+  // Guarded Toggle Like Place (Requires Login)
+  const toggleLikePlace = (placeId: string): boolean => {
+    if (!currentUser.value) {
+      openAuthModal('login', 'Please log in to like and save attractions to your favorites.')
+      return false
+    }
+
     const idx = likedPlaceIds.value.indexOf(placeId)
     const targetPlace = places.value.find(p => p.id === placeId)
     if (idx > -1) {
@@ -74,10 +147,16 @@ export const useTravelData = () => {
       likedPlaceIds.value.push(placeId)
       if (targetPlace) targetPlace.likesCount += 1
     }
+    return true
   }
 
-  // Toggle Like Stay
-  const toggleLikeStay = (stayId: string) => {
+  // Guarded Toggle Like Stay (Requires Login)
+  const toggleLikeStay = (stayId: string): boolean => {
+    if (!currentUser.value) {
+      openAuthModal('login', 'Please log in to like and bookmark accommodations.')
+      return false
+    }
+
     const idx = likedStayIds.value.indexOf(stayId)
     const targetStay = stays.value.find(s => s.id === stayId)
     if (idx > -1) {
@@ -87,10 +166,16 @@ export const useTravelData = () => {
       likedStayIds.value.push(stayId)
       if (targetStay) targetStay.likesCount += 1
     }
+    return true
   }
 
   // Submit a new Place (community contribution)
   const submitPlace = (placeData: Partial<Place>) => {
+    if (!currentUser.value) {
+      openAuthModal('login', 'Please log in to contribute and submit new attractions.')
+      return null
+    }
+
     const newId = `place-${Date.now()}`
     const newSubmissionId = `sub-${Date.now()}`
     const fullPlace: Place = {
@@ -139,6 +224,11 @@ export const useTravelData = () => {
 
   // Submit a new Stay (host/community submission)
   const submitStay = (stayData: Partial<Stay>) => {
+    if (!currentUser.value) {
+      openAuthModal('login', 'Please log in to submit and list accommodations.')
+      return null
+    }
+
     const newId = `stay-${Date.now()}`
     const newSubmissionId = `sub-${Date.now()}`
     const fullStay: Stay = {
@@ -196,7 +286,6 @@ export const useTravelData = () => {
 
     if (sub.type === 'place') {
       const placeObj = { ...sub.data, status: 'approved' } as Place
-      // If not already in places, add it
       if (!places.value.some(p => p.id === placeObj.id)) {
         places.value.unshift(placeObj)
       }
@@ -216,8 +305,13 @@ export const useTravelData = () => {
     sub.rejectionReason = reason
   }
 
-  // Add a review
+  // Add a review (Guarded: requires login)
   const addReview = (targetType: 'place' | 'stay', targetId: string, rating: number, comment: string) => {
+    if (!currentUser.value) {
+      openAuthModal('login', 'Please log in to submit a review and rating.')
+      return null
+    }
+
     const newRev: Review = {
       id: `rev-${Date.now()}`,
       targetType,
@@ -232,7 +326,6 @@ export const useTravelData = () => {
     }
     reviews.value.unshift(newRev)
 
-    // recalculate target rating
     if (targetType === 'place') {
       const target = places.value.find(p => p.id === targetId)
       if (target) {
@@ -259,6 +352,16 @@ export const useTravelData = () => {
     currentUser,
     isDarkMode,
     globalFilter,
+    platformRatingStats,
+    hasUserRatedPlatform,
+    authModalOpen,
+    authModalMode,
+    authPromptMessage,
+    openAuthModal,
+    login,
+    logout,
+    quickDemoLogin,
+    submitPlatformRating,
     toggleDarkMode,
     getTownsByDistrict,
     toggleLikePlace,

@@ -29,9 +29,9 @@ export interface User {
   id: string
   name: string
   email: string
-  role: UserRole
+  role: 'user' | 'owner' | 'admin'
   avatarUrl?: string
-  createdAt: string
+  createdAt?: string
 }
 
 export interface District {

@@ -63,9 +63,25 @@
 
       </div>
 
-      <!-- Copyright & Disclaimer -->
+      <!-- Copyright & Developer Credit Section -->
       <div class="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 dark:text-slate-400 gap-4">
-        <p>© 2026 TravelGuide LK. Built with Nuxt 3 & Tailwind CSS.</p>
+        <div class="flex flex-col sm:flex-row items-center gap-2 sm:gap-4">
+          <p>© 2026 TravelGuide LK. All rights reserved.</p>
+          <span class="hidden sm:inline text-slate-300 dark:text-slate-700">•</span>
+          <p class="flex items-center gap-1.5">
+            <span>Designed & Developed by</span>
+            <a 
+              href="https://shamikakkss.me/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              class="font-bold text-brand-500 hover:text-brand-600 hover:underline transition-colors flex items-center gap-1"
+            >
+              <span>Sachintha</span>
+              <span class="text-[10px]">↗</span>
+            </a>
+          </p>
+        </div>
+
         <div class="flex items-center space-x-6">
           <NuxtLink to="/explore" class="hover:underline">Privacy Policy</NuxtLink>
           <NuxtLink to="/explore" class="hover:underline">Terms of Service</NuxtLink>

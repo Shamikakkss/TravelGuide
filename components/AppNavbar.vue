@@ -2,8 +2,12 @@
   <header class="sticky top-0 z-50 w-full glass-nav transition-all duration-300">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-20">
-        <!-- Brand Logo -->
-        <NuxtLink to="/" class="flex items-center space-x-3 group">
+        <!-- Brand Logo (Scrolls to top on click) -->
+        <NuxtLink 
+          to="/" 
+          @click="scrollToTop"
+          class="flex items-center space-x-3 group cursor-pointer"
+        >
           <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-600 via-brand-500 to-amber-500 flex items-center justify-center text-white shadow-glow-brand transform group-hover:scale-105 transition-transform duration-300">
             <span class="text-xl">🇱🇰</span>
           </div>
@@ -21,6 +25,7 @@
         <nav class="hidden md:flex items-center space-x-1 lg:space-x-2">
           <NuxtLink 
             to="/" 
+            @click="scrollToTop"
             class="px-4 py-2 rounded-xl text-sm font-medium transition-colors"
             :class="$route.path === '/' ? 'text-brand-500 bg-brand-50 dark:bg-brand-950/40 font-semibold' : 'text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white hover:bg-slate-100/60 dark:hover:bg-slate-800/60'"
           >
@@ -56,7 +61,7 @@
           </NuxtLink>
         </nav>
 
-        <!-- Right Side: Dark Mode, Submit Action, User/Admin Profile -->
+        <!-- Right Side Actions -->
         <div class="hidden md:flex items-center space-x-3">
           <!-- Dark Mode Toggle Button -->
           <button 
@@ -104,7 +109,7 @@
           </div>
         </div>
 
-        <!-- Mobile Menu Hamburger Button -->
+        <!-- Mobile Menu Button -->
         <div class="flex items-center space-x-2 md:hidden">
           <button 
             @click="toggleDarkMode" 
@@ -131,7 +136,7 @@
     <!-- Mobile Slide-Down Menu -->
     <div v-if="mobileMenuOpen" class="md:hidden glass-panel border-t border-slate-200 dark:border-slate-800 px-4 pt-3 pb-6 space-y-2 animate-fadeIn">
       <NuxtLink 
-        @click="mobileMenuOpen = false" 
+        @click="handleMobileHomeClick" 
         to="/" 
         class="block px-4 py-2.5 rounded-xl text-sm font-medium"
         :class="$route.path === '/' ? 'bg-brand-50 dark:bg-brand-950/40 text-brand-500 font-bold' : 'text-slate-700 dark:text-slate-200'"
@@ -199,12 +204,28 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useRoute } from 'vue-router'
 import { useTravelData } from '~/composables/useTravelData'
 
+const route = useRoute()
 const { isDarkMode, toggleDarkMode, currentUser, submissions } = useTravelData()
 const mobileMenuOpen = ref(false)
 
 const pendingSubmissionsCount = computed(() => {
   return submissions.value.filter(s => s.status === 'pending').length
 })
+
+const scrollToTop = () => {
+  if (process.client) {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    })
+  }
+}
+
+const handleMobileHomeClick = () => {
+  mobileMenuOpen.value = false
+  scrollToTop()
+}
 </script>
