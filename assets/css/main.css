@@ -120,3 +120,30 @@
 .animate-subtle-pulse {
   animation: subtle-pulse 3s infinite ease-in-out;
 }
+
+/* Stat card — clean, no background, subtle shadow only */
+.stat-card-clean {
+  background: transparent;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.12), 0 1px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.stat-card-clean:hover {
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.2), 0 2px 12px rgba(0, 0, 0, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* Hero headline glow */
+.hero-headline-glow {
+  text-shadow: 0 2px 40px rgba(255, 255, 255, 0.08), 0 4px 80px rgba(0, 0, 0, 0.3);
+}
+
+/* Fade-in animation for modals */
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.2s ease-out;
+}

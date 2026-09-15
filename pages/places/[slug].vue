@@ -1,7 +1,7 @@
 <template>
   <div v-if="place" class="pb-24 space-y-12">
     <!-- Breadcrumb & Back Navigation -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+    <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-10 pt-6">
       <div class="flex items-center justify-between text-xs text-slate-500">
         <div class="flex items-center gap-2">
           <NuxtLink to="/" class="hover:text-brand-500">Home</NuxtLink>
@@ -23,7 +23,7 @@
     </div>
 
     <!-- Image Gallery Hero Grid -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-10">
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 rounded-3xl overflow-hidden max-h-[500px]">
         <!-- Main Large Image -->
         <div class="md:col-span-2 h-72 md:h-[500px] overflow-hidden group relative">
@@ -53,7 +53,7 @@
     </div>
 
     <!-- Main Place Details & Aside Column -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-10">
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
         
         <!-- Left 2 Cols: Details, Highlights, Map, Reviews -->

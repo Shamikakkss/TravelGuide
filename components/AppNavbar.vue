@@ -1,6 +1,6 @@
 <template>
   <header class="sticky top-0 z-50 w-full glass-nav transition-all duration-300">
-    <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10">
+    <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-10">
       <div class="flex items-center justify-between h-20">
         <!-- Brand Logo (Scrolls to top on click) -->
         <NuxtLink 

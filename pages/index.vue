@@ -2,7 +2,7 @@
   <div class="space-y-20 pb-20">
     
     <!-- Hero Section -->
-    <section class="relative min-h-[88vh] flex items-center justify-center pt-24 pb-16 px-4 sm:px-6 lg:px-10 overflow-hidden">
+    <section class="relative min-h-[85vh] flex items-center justify-center pt-16 pb-10 px-3 sm:px-4 lg:px-6 overflow-hidden">
       <!-- Background Image with Ambient Glow -->
       <div class="absolute inset-0 z-0">
         <img 
@@ -13,93 +13,88 @@
         <div class="absolute inset-0 hero-gradient-overlay"></div>
       </div>
 
-      <!-- Hero Main Container (Wider max-w-6xl) -->
-      <div class="relative z-10 w-full max-w-[1400px] mx-auto text-center space-y-8">
+      <!-- Hero Main Container — Full Width -->
+      <div class="relative z-10 w-full max-w-[1600px] mx-auto text-center space-y-7">
         
-        <!-- Top Sleek Search Bar (Minimalist, No heavy grey background) -->
-        <div class="max-w-2xl mx-auto backdrop-blur-md bg-black/25 dark:bg-black/40 p-1.5 rounded-full border border-white/30 shadow-2xl transition-all">
-          <div class="flex items-center gap-2">
-            <div class="flex-1 flex items-center pl-4 sm:pl-5">
-              <span class="text-amber-300 text-base mr-2.5">🔍</span>
-              <input 
-                v-model="quickSearchQuery" 
-                type="text" 
-                placeholder="Search destinations, villas, towns (e.g. Sigiriya, Ella, Mirissa)..."
-                class="w-full py-2.5 bg-transparent text-white placeholder-slate-300 text-xs sm:text-sm outline-none font-medium selection:bg-brand-500"
-                @keyup.enter="handleHeroQuickSearch"
-              />
-            </div>
+        <!-- Minimal Top Search Bar — No background box, just a sleek floating line -->
+        <div class="max-w-xl mx-auto">
+          <div class="flex items-center gap-0 border-b border-white/40 pb-2 group hover:border-amber-300/60 transition-colors duration-300">
+            <span class="text-amber-300/80 text-sm mr-3 group-hover:text-amber-300 transition-colors">🔍</span>
+            <input 
+              v-model="quickSearchQuery" 
+              type="text" 
+              placeholder="Where to? (e.g. Sigiriya, Ella, Mirissa...)"
+              class="flex-1 bg-transparent text-white placeholder-white/50 text-sm outline-none font-light tracking-wide"
+              @keyup.enter="handleHeroQuickSearch"
+            />
             <button 
               @click="handleHeroQuickSearch"
-              class="px-6 py-2.5 rounded-full bg-brand-500 hover:bg-brand-600 active:scale-95 text-white font-bold text-xs shadow-md shadow-brand-500/40 flex items-center gap-1.5 transition-all"
+              class="ml-3 px-5 py-1.5 rounded-full bg-white/15 hover:bg-brand-500 active:scale-95 text-white/90 hover:text-white font-semibold text-xs backdrop-blur-sm flex items-center gap-1.5 transition-all duration-300 border border-white/20 hover:border-brand-500"
             >
               <span>Explore</span>
-              <span>→</span>
+              <span class="text-[10px]">→</span>
             </button>
           </div>
         </div>
 
-        <!-- Grand Main Headline & Slogan -->
-        <div class="space-y-4 max-w-5xl mx-auto">
-          <h1 class="text-4xl sm:text-6xl lg:text-7xl font-extrabold text-white tracking-tight font-serif leading-tight uppercase drop-shadow-md">
-            Discover the Pearl <br class="hidden sm:inline" />
+        <!-- Grand Main Headline -->
+        <div class="space-y-3 max-w-5xl mx-auto">
+          <h1 class="text-4xl sm:text-6xl lg:text-7xl xl:text-[5.5rem] font-extrabold text-white tracking-tight font-serif leading-[1.08] hero-headline-glow">
+            Discover Sri Lanka's <br class="hidden sm:inline" />
             <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-brand-300 to-amber-300 font-serif">
-              of the Indian Ocean
+              Untamed Beauty & Stays
             </span>
           </h1>
-          <p class="text-base sm:text-xl text-slate-200 font-sans font-medium tracking-wide">
-            Discover Sri Lanka’s Untamed Beauty & Stays
-          </p>
-          <p class="max-w-2xl mx-auto text-xs sm:text-sm text-slate-300 font-light leading-relaxed">
+          <p class="max-w-xl mx-auto text-xs sm:text-sm text-white/50 font-light leading-relaxed">
             From misty highland tea hills to pristine southern surf coasts. Find iconic landmarks, hidden waterfalls, and boutique stays.
           </p>
         </div>
 
-        <!-- 5 Wider, Transparent Frameless Stat Cards (Screen-wide layout) -->
-        <div class="grid grid-cols-2 sm:grid-cols-5 gap-4 sm:gap-6 w-full max-w-5xl mx-auto pt-4 text-white">
+        <!-- 5 Stat Cards — No background, clean subtle shadow only -->
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-5 sm:gap-8 w-full max-w-[1600px] mx-auto pt-4 text-white">
           
           <!-- Card 1: Districts -->
-          <div class="p-4 rounded-3xl backdrop-blur-md bg-white/10 dark:bg-black/30 border border-white/20 shadow-lg text-center hover:bg-white/15 transition-all duration-300 flex flex-col justify-center">
-            <span class="text-xl mb-1">🗺️</span>
-            <p class="text-3xl font-extrabold text-brand-300 font-sans">25</p>
-            <p class="text-[11px] uppercase tracking-wider text-slate-200 font-bold mt-0.5">Districts</p>
+          <div class="stat-card-clean p-5 sm:p-6 rounded-2xl text-center flex flex-col justify-center items-center hover:translate-y-[-4px] transition-all duration-300">
+            <span class="text-2xl mb-2 opacity-80">🗺️</span>
+            <p class="text-4xl sm:text-5xl font-extrabold text-brand-300 font-sans leading-none">25</p>
+            <p class="text-[10px] sm:text-[11px] uppercase tracking-[0.2em] text-white/50 font-semibold mt-2">Districts</p>
           </div>
 
           <!-- Card 2: Attractions -->
-          <div class="p-4 rounded-3xl backdrop-blur-md bg-white/10 dark:bg-black/30 border border-white/20 shadow-lg text-center hover:bg-white/15 transition-all duration-300 flex flex-col justify-center">
-            <span class="text-xl mb-1">🏔️</span>
-            <p class="text-3xl font-extrabold text-amber-300 font-sans">{{ places.length }}+</p>
-            <p class="text-[11px] uppercase tracking-wider text-slate-200 font-bold mt-0.5">Attractions</p>
+          <div class="stat-card-clean p-5 sm:p-6 rounded-2xl text-center flex flex-col justify-center items-center hover:translate-y-[-4px] transition-all duration-300">
+            <span class="text-2xl mb-2 opacity-80">🏔️</span>
+            <p class="text-4xl sm:text-5xl font-extrabold text-amber-300 font-sans leading-none">{{ places.length }}+</p>
+            <p class="text-[10px] sm:text-[11px] uppercase tracking-[0.2em] text-white/50 font-semibold mt-2">Attractions</p>
           </div>
 
           <!-- Card 3: Stays -->
-          <div class="p-4 rounded-3xl backdrop-blur-md bg-white/10 dark:bg-black/30 border border-white/20 shadow-lg text-center hover:bg-white/15 transition-all duration-300 flex flex-col justify-center">
-            <span class="text-xl mb-1">🏡</span>
-            <p class="text-3xl font-extrabold text-cyan-300 font-sans">{{ stays.length }}+</p>
-            <p class="text-[11px] uppercase tracking-wider text-slate-200 font-bold mt-0.5">Villas & Stays</p>
+          <div class="stat-card-clean p-5 sm:p-6 rounded-2xl text-center flex flex-col justify-center items-center hover:translate-y-[-4px] transition-all duration-300">
+            <span class="text-2xl mb-2 opacity-80">🏡</span>
+            <p class="text-4xl sm:text-5xl font-extrabold text-cyan-300 font-sans leading-none">{{ stays.length }}+</p>
+            <p class="text-[10px] sm:text-[11px] uppercase tracking-[0.2em] text-white/50 font-semibold mt-2">Villas & Stays</p>
           </div>
 
           <!-- Card 4: Active Travelers -->
-          <div class="p-4 rounded-3xl backdrop-blur-md bg-white/10 dark:bg-black/30 border border-white/20 shadow-lg text-center hover:bg-white/15 transition-all duration-300 flex flex-col justify-center">
-            <span class="text-xl mb-1">👥</span>
-            <p class="text-3xl font-extrabold text-emerald-400 font-sans">1.2k+</p>
-            <p class="text-[11px] uppercase tracking-wider text-slate-200 font-bold mt-0.5">Travelers</p>
+          <div class="stat-card-clean p-5 sm:p-6 rounded-2xl text-center flex flex-col justify-center items-center hover:translate-y-[-4px] transition-all duration-300">
+            <span class="text-2xl mb-2 opacity-80">👥</span>
+            <p class="text-4xl sm:text-5xl font-extrabold text-emerald-400 font-sans leading-none">1.2k+</p>
+            <p class="text-[10px] sm:text-[11px] uppercase tracking-[0.2em] text-white/50 font-semibold mt-2">Travelers</p>
           </div>
 
           <!-- Card 5: Interactive Member Rating Card -->
           <div 
             @click="handleRatingCardClick"
-            class="col-span-2 sm:col-span-1 p-4 rounded-3xl backdrop-blur-md bg-white/10 dark:bg-black/30 border border-white/20 shadow-lg text-center cursor-pointer hover:border-amber-400 hover:bg-white/20 transition-all duration-300 flex flex-col justify-center relative group"
+            class="col-span-2 sm:col-span-1 stat-card-clean p-5 sm:p-6 rounded-2xl text-center cursor-pointer hover:translate-y-[-4px] transition-all duration-300 flex flex-col justify-center items-center relative group"
             title="Click to rate the platform"
           >
-            <span class="text-xl mb-1">⭐</span>
-            <p class="text-3xl font-extrabold text-amber-400 font-sans">
-              ★ {{ platformRatingStats.average }}
+            <span class="text-2xl mb-2 opacity-80">⭐</span>
+            <p class="text-4xl sm:text-5xl font-extrabold text-amber-400 font-sans leading-none">
+              {{ platformRatingStats.average }}
             </p>
-            <p class="text-[11px] uppercase tracking-wider text-slate-200 font-bold mt-0.5 flex items-center justify-center gap-1">
+            <p class="text-[10px] sm:text-[11px] uppercase tracking-[0.2em] text-white/50 font-semibold mt-2 flex items-center justify-center gap-1.5">
               <span>Rating</span>
-              <span v-if="!hasUserRatedPlatform" class="text-[10px] text-amber-300 group-hover:underline">Rate ✍️</span>
-              <span v-else class="text-[10px] text-emerald-300">✓ Rated</span>
+              <span v-if="!hasUserRatedPlatform" class="text-[9px] text-amber-300/80 group-hover:underline group-hover:text-amber-200">Rate ✍️</span>
+              <span v-else class="text-[9px] text-emerald-300/80">✓ Rated</span>
             </p>
           </div>
 
@@ -109,7 +104,7 @@
     </section>
 
     <!-- Section 2: Interactive Discovery & Filter Engine (Immediately Below Hero) -->
-    <section id="explore-section" class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 space-y-6 scroll-mt-24">
+    <section id="explore-section" class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-10 space-y-6 scroll-mt-24">
       <div class="space-y-1 text-center sm:text-left">
         <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white font-sans">
           Search & Filter Places
@@ -240,7 +235,7 @@
     </section>
 
     <!-- Top Attractions Section -->
-    <section class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 space-y-6">
+    <section class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-10 space-y-6">
       <div class="flex items-center justify-between">
         <div>
           <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white font-sans">
@@ -267,7 +262,7 @@
     </section>
 
     <!-- Curated Stays Showcase -->
-    <section class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 space-y-6">
+    <section class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-10 space-y-6">
       <div class="flex items-center justify-between">
         <div>
           <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white font-sans">
@@ -294,7 +289,7 @@
     </section>
 
     <!-- Explore by District Section -->
-    <section class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 space-y-6">
+    <section class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-10 space-y-6">
       <div class="flex items-center justify-between">
         <div>
           <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white font-sans">
@@ -321,7 +316,7 @@
     </section>
 
     <!-- Interactive Map Section Preview -->
-    <section class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 space-y-4">
+    <section class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-10 space-y-4">
       <div class="text-center space-y-1 max-w-xl mx-auto">
         <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white font-sans">
           Interactive Sri Lanka Map
@@ -334,7 +329,7 @@
     </section>
 
     <!-- Community Contribution CTA Banner -->
-    <section class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10">
+    <section class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-10">
       <div class="relative rounded-3xl overflow-hidden bg-gradient-to-r from-brand-900 via-brand-700 to-amber-800 p-8 sm:p-12 text-white shadow-xl">
         <div class="relative z-10 max-w-2xl space-y-4">
           <span class="inline-block px-3 py-1 rounded-full bg-white/20 text-xs font-semibold">
