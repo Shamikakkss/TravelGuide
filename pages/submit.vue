@@ -42,18 +42,13 @@
       <p class="text-xs text-slate-500 leading-relaxed">
         To maintain listing quality and let you track your submissions, you must be logged in to contribute places or accommodations.
       </p>
-      <div class="pt-2 flex justify-center gap-3">
+      <div class="pt-2 flex justify-center">
         <button 
           @click="openAuthModal('login', 'Please log in to submit a location.')"
-          class="px-5 py-2.5 rounded-xl bg-brand-500 text-white font-bold text-xs shadow-md shadow-brand-500/20"
+          class="px-6 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-bold text-xs shadow-md shadow-brand-500/20 active:scale-95 transition-all flex items-center gap-2"
         >
-          Log In
-        </button>
-        <button 
-          @click="openAuthModal('register', 'Create an account to submit a location.')"
-          class="px-5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold text-xs"
-        >
-          Sign Up
+          <span>👤</span>
+          <span>Log In / Sign Up</span>
         </button>
       </div>
     </div>

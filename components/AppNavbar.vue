@@ -117,19 +117,14 @@
             </div>
           </div>
 
-          <!-- When Guest (Not Logged In): Log In / Sign Up Buttons -->
-          <div v-else class="flex items-center gap-2">
+          <!-- When Guest (Not Logged In): Log In Button Only -->
+          <div v-else class="flex items-center">
             <button 
               @click="openAuthModal('login')"
-              class="px-3.5 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 hover:text-brand-500 dark:hover:text-brand-400 transition-colors"
+              class="px-5 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white text-xs font-bold shadow-md shadow-brand-500/20 active:scale-95 transition-all flex items-center gap-1.5"
             >
-              Log In
-            </button>
-            <button 
-              @click="openAuthModal('register')"
-              class="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 text-white text-xs font-bold transition-colors"
-            >
-              Sign Up
+              <span>👤</span>
+              <span>Log In</span>
             </button>
           </div>
         </div>
@@ -225,18 +220,13 @@
           🚪 Log Out
         </button>
       </div>
-      <div v-else class="pt-2 border-t border-slate-200 dark:border-slate-800 flex gap-2">
+      <div v-else class="pt-2 border-t border-slate-200 dark:border-slate-800">
         <button 
           @click="openAuthModal('login'); mobileMenuOpen = false"
-          class="flex-1 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-bold text-slate-700 dark:text-slate-200"
+          class="w-full py-2.5 rounded-xl bg-brand-500 text-white text-xs font-bold text-center flex items-center justify-center gap-1.5"
         >
-          Log In
-        </button>
-        <button 
-          @click="openAuthModal('register'); mobileMenuOpen = false"
-          class="flex-1 py-2.5 rounded-xl bg-brand-500 text-white text-xs font-bold"
-        >
-          Sign Up
+          <span>👤</span>
+          <span>Log In</span>
         </button>
       </div>
 

@@ -102,6 +102,30 @@
         >
           {{ authModalMode === 'login' ? 'Sign In' : 'Create Account' }}
         </button>
+
+        <!-- Toggle Mode Switch Text -->
+        <div class="text-center pt-1">
+          <p v-if="authModalMode === 'login'" class="text-xs text-slate-500 dark:text-slate-400">
+            Don't have an account? 
+            <button 
+              type="button"
+              @click="authModalMode = 'register'" 
+              class="font-bold text-brand-500 hover:text-brand-600 underline underline-offset-2 ml-1"
+            >
+              Sign Up here
+            </button>
+          </p>
+          <p v-else class="text-xs text-slate-500 dark:text-slate-400">
+            Already have an account? 
+            <button 
+              type="button"
+              @click="authModalMode = 'login'" 
+              class="font-bold text-brand-500 hover:text-brand-600 underline underline-offset-2 ml-1"
+            >
+              Log In here
+            </button>
+          </p>
+        </div>
       </form>
 
       <!-- 1-Click Fast Demo Accounts -->

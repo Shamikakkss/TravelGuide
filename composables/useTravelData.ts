@@ -20,13 +20,7 @@ export const useTravelData = () => {
   const likedStayIds = useState<string[]>('likedStayIds', () => ['stay-mirissa-ocean-villa'])
 
   // Auth & Session State
-  const currentUser = useState<User | null>('currentUser', () => ({
-    id: 'usr-sachintha',
-    name: 'Sachintha (Traveler)',
-    email: 'sachintha@travelguide.lk',
-    role: 'admin',
-    avatarUrl: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&auto=format&fit=crop'
-  }))
+  const currentUser = useState<User | null>('currentUser', () => null)
 
   const authModalOpen = useState<boolean>('authModalOpen', () => false)
   const authModalMode = useState<'login' | 'register'>('authModalMode', () => 'login')
