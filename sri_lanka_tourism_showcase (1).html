@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TravelGuide LK - Immersive Sri Lanka</title>
+    
+    <!-- Fonts: Inter for clean UI, Playfair Display for elegant headings -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <!-- Icons: Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class', // Enable class-based dark mode
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        // Sophisticated color palette
+                        brand: {
+                            50: '#f5f7fa',
+                            100: '#e4e7eb',
+                            500: '#c08261', // Warm earthy terracotta
+                            600: '#9a634a',
+                            900: '#3a2720',
+                        },
+                        surface: {
+                            light: '#ffffff',
+                            dark: '#0f172a',
+                        },
+                        accent: '#2b6cb0' // Deep ocean blue
+                    },
+                    backgroundImage: {
+                        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+                    },
+                    boxShadow: {
+                        'soft': '0 20px 40px -15px rgba(0,0,0,0.05)',
+                        'glow': '0 0 40px -10px rgba(192, 130, 97, 0.3)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Base Theme Transitions */
+        body {
+            transition: background-color 0.4s ease, color 0.4s ease;
+        }
+
+        /* Hide scrollbar but keep functionality */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Modern Gradient Overlays */
+        .hero-overlay-dark {
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.7) 0%, rgba(15, 23, 42, 0.4) 40%, rgba(15, 23, 42, 0.95) 100%);
+        }
+        .hero-overlay-light {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 40%, rgba(255, 255, 255, 0.95) 100%);
+        }
+
+        /* Fluid Image Hover Effects */
+        .img-zoom-container {
+            overflow: hidden;
+        }
+        .img-zoom {
+            transition: transform 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        .img-zoom-container:hover .img-zoom {
+            transform: scale(1.08);
+        }
+
+        /* Custom Animations */
+        @keyframes float-slow {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+            100% { transform: translateY(0px); }
+        }
+        .animate-float-slow {
+            animation: float-slow 8s ease-in-out infinite;
+        }
+
+        /* Scroll Reveal Utility Classes */
+        .reveal-fade {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 1s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal-fade.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .delay-100 { transition-delay: 100ms; }
+        .delay-200 { transition-delay: 200ms; }
+        .delay-300 { transition-delay: 300ms; }
+
+        /* Modern Floating Navbar line */
+        .nav-link {
+            position: relative;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 1px;
+            bottom: -4px;
+            left: 50%;
+            background-color: currentColor;
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        /* Theme Toggle switch styling */
+        .theme-toggle-btn {
+            position: relative;
+            overflow: hidden;
+        }
+        .theme-toggle-icon {
+            transition: transform 0.5s cubic-bezier(0.4, 0.0, 0.2, 1);
+            position: absolute;
+            left: 50%;
+            top: 50%;
+        }
+        .dark .icon-sun { transform: translate(-50%, -50%) translateY(40px) scale(0); opacity: 0; }
+        .dark .icon-moon { transform: translate(-50%, -50%) translateY(0) scale(1); opacity: 1; }
+        .light .icon-moon { transform: translate(-50%, -50%) translateY(-40px) scale(0); opacity: 0; }
+        .light .icon-sun { transform: translate(-50%, -50%) translateY(0) scale(1); opacity: 1; }
+    </style>
+</head>
+
+<body class="bg-surface-light text-slate-800 dark:bg-surface-dark dark:text-slate-100 antialiased selection:bg-brand-500 selection:text-white transition-colors duration-500">
+
+    <!-- Modern Open Navigation (No borders/boxes, floating style) -->
+    <nav id="navbar" class="fixed w-full z-50 transition-all duration-500 py-6 px-6 md:px-12">
+        <div class="flex items-center justify-between max-w-[1400px] mx-auto">
+            
+            <!-- Logo -->
+            <div class="flex-shrink-0 flex items-center gap-3 cursor-pointer group">
+                <div class="w-10 h-10 rounded-full bg-brand-500 text-white flex items-center justify-center font-serif italic text-xl transition-transform duration-500 group-hover:rotate-12">
+                    TG
+                </div>
+                <span class="font-serif font-semibold text-2xl tracking-wide dark:text-white text-slate-900 transition-colors">TravelGuide.lk</span>
+            </div>
+
+            <!-- Desktop Menu (Centered, minimal) -->
+            <div class="hidden md:flex items-center space-x-10">
+                <a href="#" class="nav-link text-sm font-medium tracking-wide text-slate-800 dark:text-slate-200 hover:text-brand-500 dark:hover:text-brand-500 transition-colors">Destinations</a>
+                <a href="#" class="nav-link text-sm font-medium tracking-wide text-slate-800 dark:text-slate-200 hover:text-brand-500 dark:hover:text-brand-500 transition-colors">Villas & Stays</a>
+                <a href="#" class="nav-link text-sm font-medium tracking-wide text-slate-800 dark:text-slate-200 hover:text-brand-500 dark:hover:text-brand-500 transition-colors">Experiences</a>
+                <a href="#" class="nav-link text-sm font-medium tracking-wide text-slate-800 dark:text-slate-200 hover:text-brand-500 dark:hover:text-brand-500 transition-colors">Journal</a>
+            </div>
+
+            <!-- Utilities (Theme Toggle, Auth) -->
+            <div class="flex items-center gap-5">
+                
+                <!-- Theme Toggle -->
+                <button id="theme-toggle" class="theme-toggle-btn w-10 h-10 rounded-full flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-white/10 transition-colors" aria-label="Toggle Theme">
+                    <!-- Icons absolute positioned via CSS -->
+                    <i class="ph ph-moon text-xl icon-moon absolute"></i>
+                    <i class="ph ph-sun text-xl icon-sun absolute"></i>
+                </button>
+
+                <a href="#" class="hidden lg:inline-block text-sm font-medium text-slate-800 dark:text-slate-200 hover:text-brand-500 transition-colors">Sign In</a>
+                
+                <a href="#" class="hidden md:inline-block relative overflow-hidden group px-6 py-2.5 rounded-full border border-slate-800 dark:border-white text-sm font-medium">
+                    <span class="relative z-10 text-slate-800 dark:text-white group-hover:text-white transition-colors duration-300">Plan a Trip</span>
+                    <div class="absolute inset-0 bg-slate-900 dark:bg-white transform scale-x-0 origin-left group-hover:scale-x-100 transition-transform duration-500 ease-out z-0"></div>
+                </a>
+                
+                <!-- Mobile menu button -->
+                <button id="mobile-menu-btn" class="md:hidden text-slate-800 dark:text-white focus:outline-none w-10 h-10 flex items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-white/10 transition-colors">
+                    <i class="ph ph-list text-2xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Overlay -->
+        <div id="mobile-menu" class="fixed inset-0 bg-surface-light dark:bg-surface-dark z-[-1] flex flex-col justify-center items-center opacity-0 pointer-events-none transition-opacity duration-500">
+            <div class="flex flex-col items-center space-y-8 text-2xl font-serif">
+                <a href="#" class="text-slate-800 dark:text-white hover:text-brand-500 transition-colors transform translate-y-4 mobile-link">Destinations</a>
+                <a href="#" class="text-slate-800 dark:text-white hover:text-brand-500 transition-colors transform translate-y-4 mobile-link delay-100">Villas & Stays</a>
+                <a href="#" class="text-slate-800 dark:text-white hover:text-brand-500 transition-colors transform translate-y-4 mobile-link delay-200">Experiences</a>
+                <a href="#" class="text-slate-800 dark:text-white hover:text-brand-500 transition-colors transform translate-y-4 mobile-link delay-300">Sign In</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section (Immersive Full Bleed) -->
+    <section class="relative min-h-[100svh] flex items-center pt-20 overflow-hidden">
+        
+        <!-- Background Imagery -->
+        <div class="absolute inset-0 z-0">
+            <!-- Main high-res Unsplash image (Sri Lanka landscape/villa aesthetic) -->
+            <img src="https://images.unsplash.com/photo-1620619895055-6804555b2714?q=80&w=2400&auto=format&fit=crop" 
+                 alt="Sri Lanka Nine Arches Bridge" 
+                 class="w-full h-full object-cover object-center scale-105 transform transition-transform duration-[20s] hover:scale-110" />
+            
+            <!-- Dynamic Overlay (changes based on theme) -->
+            <div id="hero-overlay" class="absolute inset-0 hero-overlay-dark transition-all duration-1000"></div>
+        </div>
+
+        <!-- Hero Content -->
+        <div class="relative z-10 w-full max-w-[1400px] mx-auto px-6 md:px-12 flex flex-col justify-center items-center text-center">
+            
+            <p class="text-brand-500 dark:text-brand-500 font-medium tracking-[0.3em] uppercase text-xs md:text-sm mb-6 reveal-fade">
+                The Pearl of the Indian Ocean
+            </p>
+            
+            <h1 class="text-5xl md:text-7xl lg:text-8xl font-serif font-medium dark:text-white text-slate-900 mb-6 leading-[1.1] reveal-fade delay-100">
+                Immerse yourself <br/> <span class="italic text-brand-500">in beauty.</span>
+            </h1>
+            
+            <p class="mt-4 text-base md:text-lg dark:text-slate-300 text-slate-700 max-w-2xl mx-auto mb-12 font-light leading-relaxed reveal-fade delay-200">
+                Discover curated luxury villas, boutique stays, and untouched natural wonders across Sri Lanka, curated by a passionate community.
+            </p>
+
+            <!-- Minimal Search/Filter Bar -->
+            <div class="w-full max-w-4xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-white/40 dark:border-slate-700/50 p-2 rounded-2xl md:rounded-full shadow-soft reveal-fade delay-300">
+                <form class="flex flex-col md:flex-row items-center divide-y md:divide-y-0 md:divide-x divide-slate-200 dark:divide-slate-700">
+                    
+                    <!-- Search Input -->
+                    <div class="w-full md:w-2/5 px-6 py-4 md:py-3 flex items-center gap-3">
+                        <i class="ph ph-magnifying-glass text-slate-400 text-xl"></i>
+                        <input type="text" placeholder="Where do you want to go?" class="w-full bg-transparent border-none outline-none text-slate-800 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 text-sm font-medium">
+                    </div>
+
+                    <!-- Category Select -->
+                    <div class="w-full md:w-1/4 px-6 py-4 md:py-3 flex items-center justify-between group cursor-pointer relative">
+                        <div class="flex items-center gap-3 w-full">
+                            <i class="ph ph-house-line text-slate-400 text-xl"></i>
+                            <select class="w-full bg-transparent border-none outline-none text-slate-800 dark:text-white appearance-none cursor-pointer text-sm font-medium">
+                                <option value="" disabled selected class="text-slate-800">All Stays</option>
+                                <option value="villa" class="text-slate-800">Luxury Villas</option>
+                                <option value="boutique" class="text-slate-800">Boutique Hotels</option>
+                                <option value="cabin" class="text-slate-800">Nature Cabins</option>
+                            </select>
+                        </div>
+                        <i class="ph ph-caret-down text-slate-400 text-sm group-hover:text-brand-500 transition-colors"></i>
+                    </div>
+
+                    <!-- Location Select -->
+                    <div class="w-full md:w-1/4 px-6 py-4 md:py-3 flex items-center justify-between group cursor-pointer relative">
+                        <div class="flex items-center gap-3 w-full">
+                            <i class="ph ph-map-pin text-slate-400 text-xl"></i>
+                            <select class="w-full bg-transparent border-none outline-none text-slate-800 dark:text-white appearance-none cursor-pointer text-sm font-medium">
+                                <option value="" disabled selected class="text-slate-800">Location</option>
+                                <option value="galle" class="text-slate-800">Galle Coast</option>
+                                <option value="ella" class="text-slate-800">Ella Mountains</option>
+                                <option value="kandy" class="text-slate-800">Kandy City</option>
+                            </select>
+                        </div>
+                        <i class="ph ph-caret-down text-slate-400 text-sm group-hover:text-brand-500 transition-colors"></i>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="w-full md:w-auto p-2 md:pl-2">
+                        <button type="button" class="w-full md:w-auto bg-brand-500 hover:bg-brand-600 text-white px-8 py-3 md:py-4 rounded-xl md:rounded-full text-sm font-semibold transition-all duration-300 flex items-center justify-center gap-2 group">
+                            <span>Explore</span>
+                            <i class="ph ph-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Scroll Indicator -->
+            <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-2 text-slate-500 dark:text-slate-400 animate-float-slow opacity-70">
+                <span class="text-[10px] tracking-widest uppercase font-medium">Scroll</span>
+                <div class="w-[1px] h-12 bg-gradient-to-b from-current to-transparent"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Curated Destinations (Modern Editorial Style) -->
+    <section class="py-24 md:py-32 px-6 md:px-12 max-w-[1400px] mx-auto">
+        <div class="flex flex-col md:flex-row justify-between items-end mb-16 reveal-fade">
+            <div class="max-w-2xl">
+                <p class="text-brand-500 font-medium tracking-[0.2em] uppercase text-xs mb-3">Curated Collection</p>
+                <h2 class="text-4xl md:text-5xl font-serif text-slate-900 dark:text-white leading-tight">Trending Destinations</h2>
+            </div>
+            <a href="#" class="hidden md:flex items-center gap-2 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-brand-500 dark:hover:text-brand-500 transition-colors mt-6 md:mt-0 group">
+                View all places 
+                <span class="w-8 h-[1px] bg-current group-hover:w-12 transition-all duration-300"></span>
+            </a>
+        </div>
+
+        <!-- Asymmetric Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-8">
+            
+            <!-- Featured Large Item -->
+            <a href="#" class="md:col-span-8 group block reveal-fade">
+                <div class="relative h-[400px] md:h-[600px] rounded-2xl md:rounded-[2rem] overflow-hidden img-zoom-container">
+                    <img src="https://images.unsplash.com/photo-1574347209703-a2620ef0dce7?q=80&w=1200&auto=format&fit=crop" alt="Sigiriya" class="w-full h-full object-cover img-zoom">
+                    <!-- Gradient for text readability -->
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80"></div>
+                    
+                    <div class="absolute bottom-8 left-8 right-8 flex justify-between items-end">
+                        <div>
+                            <span class="inline-block px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-white text-xs font-medium mb-3 border border-white/30">Historical</span>
+                            <h3 class="font-serif text-3xl md:text-4xl text-white mb-2">Sigiriya Rock Fortress</h3>
+                            <p class="text-white/80 text-sm flex items-center gap-2"><i class="ph-fill ph-map-pin"></i> Dambulla, Matale</p>
+                        </div>
+                        <div class="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md border border-white/30 flex items-center justify-center text-white transform group-hover:scale-110 transition-transform">
+                            <i class="ph ph-arrow-up-right text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Sidebar Items -->
+            <div class="md:col-span-4 flex flex-col gap-6 md:gap-8">
+                
+                <a href="#" class="group block h-[250px] md:h-[284px] reveal-fade delay-100">
+                    <div class="relative h-full rounded-2xl md:rounded-[2rem] overflow-hidden img-zoom-container">
+                        <img src="https://images.unsplash.com/photo-1550236520-7050fce10bc9?q=80&w=800&auto=format&fit=crop" alt="Mirissa" class="w-full h-full object-cover img-zoom">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent opacity-80"></div>
+                        
+                        <div class="absolute bottom-6 left-6 right-6 flex justify-between items-end">
+                            <div>
+                                <h3 class="font-serif text-2xl text-white mb-1">Mirissa Beach</h3>
+                                <p class="text-white/70 text-xs">Coastal Escape</p>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+
+                <a href="#" class="group block h-[250px] md:h-[284px] reveal-fade delay-200">
+                    <div class="relative h-full rounded-2xl md:rounded-[2rem] overflow-hidden img-zoom-container">
+                        <img src="https://images.unsplash.com/photo-1549473889-14f410d83298?q=80&w=800&auto=format&fit=crop" alt="Yala" class="w-full h-full object-cover img-zoom">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent opacity-80"></div>
+                        
+                        <div class="absolute bottom-6 left-6 right-6 flex justify-between items-end">
+                            <div>
+                                <h3 class="font-serif text-2xl text-white mb-1">Yala Safari</h3>
+                                <p class="text-white/70 text-xs">Wildlife Adventure</p>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+                
+            </div>
+        </div>
+    </section>
+
+    <!-- Exceptional Stays Section (Horizontal Scroll on Mobile, Grid on Desktop) -->
+    <section class="py-24 md:py-32 bg-slate-50 dark:bg-[#0a0f1c] transition-colors duration-500 relative">
+        <div class="max-w-[1400px] mx-auto px-6 md:px-12">
+            
+            <div class="flex flex-col md:flex-row justify-between items-end mb-16 reveal-fade">
+                <div class="max-w-2xl">
+                    <p class="text-brand-500 font-medium tracking-[0.2em] uppercase text-xs mb-3">Where to rest</p>
+                    <h2 class="text-4xl md:text-5xl font-serif text-slate-900 dark:text-white leading-tight">Exceptional Stays</h2>
+                </div>
+            </div>
+
+            <!-- Horizontal Scroll Container -->
+            <div class="flex overflow-x-auto pb-10 -mx-6 px-6 gap-6 md:gap-8 snap-x hide-scrollbar lg:grid lg:grid-cols-3 lg:overflow-visible lg:pb-0 lg:px-0 lg:mx-0">
+                
+                <!-- Stay Card 1 -->
+                <div class="min-w-[320px] lg:min-w-0 bg-white dark:bg-slate-900 rounded-[2rem] p-4 border border-slate-100 dark:border-slate-800 snap-center group hover:-translate-y-2 transition-all duration-500 shadow-soft reveal-fade">
+                    <div class="relative h-64 rounded-3xl overflow-hidden mb-6 img-zoom-container">
+                        <img src="https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?q=80&w=800&auto=format&fit=crop" alt="Villa" class="w-full h-full object-cover img-zoom">
+                        <button class="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white hover:text-red-500 transition-colors z-10 border border-white/30">
+                            <i class="ph ph-heart text-xl"></i>
+                        </button>
+                    </div>
+                    <div class="px-2 pb-2">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-serif text-xl font-medium text-slate-900 dark:text-white">Ocean Breeze Villa</h3>
+                            <div class="flex items-center gap-1 text-sm font-medium text-slate-900 dark:text-white">
+                                <i class="ph-fill ph-star text-brand-500"></i> 4.9
+                            </div>
+                        </div>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Unawatuna, Galle</p>
+                        
+                        <div class="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-800">
+                            <div>
+                                <span class="text-xs text-slate-500 dark:text-slate-400">From</span>
+                                <p class="text-lg font-medium text-slate-900 dark:text-white">Rs. 25,000 <span class="text-xs text-slate-500">/night</span></p>
+                            </div>
+                            <a href="#" class="text-brand-500 text-sm font-medium hover:text-brand-600 transition-colors">Details →</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stay Card 2 -->
+                <div class="min-w-[320px] lg:min-w-0 bg-white dark:bg-slate-900 rounded-[2rem] p-4 border border-slate-100 dark:border-slate-800 snap-center group hover:-translate-y-2 transition-all duration-500 shadow-soft reveal-fade delay-100">
+                    <div class="relative h-64 rounded-3xl overflow-hidden mb-6 img-zoom-container">
+                        <img src="https://images.unsplash.com/photo-1542718610-a1d656d1884c?q=80&w=800&auto=format&fit=crop" alt="Cabin" class="w-full h-full object-cover img-zoom">
+                        <button class="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white hover:text-red-500 transition-colors z-10 border border-white/30">
+                            <i class="ph ph-heart text-xl"></i>
+                        </button>
+                    </div>
+                    <div class="px-2 pb-2">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-serif text-xl font-medium text-slate-900 dark:text-white">Ella Pine Cabin</h3>
+                            <div class="flex items-center gap-1 text-sm font-medium text-slate-900 dark:text-white">
+                                <i class="ph-fill ph-star text-brand-500"></i> 4.7
+                            </div>
+                        </div>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Ella, Badulla</p>
+                        
+                        <div class="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-800">
+                            <div>
+                                <span class="text-xs text-slate-500 dark:text-slate-400">From</span>
+                                <p class="text-lg font-medium text-slate-900 dark:text-white">Rs. 12,000 <span class="text-xs text-slate-500">/night</span></p>
+                            </div>
+                            <a href="#" class="text-brand-500 text-sm font-medium hover:text-brand-600 transition-colors">Details →</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stay Card 3 -->
+                <div class="min-w-[320px] lg:min-w-0 bg-white dark:bg-slate-900 rounded-[2rem] p-4 border border-slate-100 dark:border-slate-800 snap-center group hover:-translate-y-2 transition-all duration-500 shadow-soft reveal-fade delay-200">
+                    <div class="relative h-64 rounded-3xl overflow-hidden mb-6 img-zoom-container">
+                        <img src="https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?q=80&w=800&auto=format&fit=crop" alt="Hotel" class="w-full h-full object-cover img-zoom">
+                        <button class="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white hover:text-red-500 transition-colors z-10 border border-white/30">
+                            <i class="ph ph-heart text-xl"></i>
+                        </button>
+                    </div>
+                    <div class="px-2 pb-2">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-serif text-xl font-medium text-slate-900 dark:text-white">Heritage Boutique</h3>
+                            <div class="flex items-center gap-1 text-sm font-medium text-slate-900 dark:text-white">
+                                <i class="ph-fill ph-star text-brand-500"></i> 4.8
+                            </div>
+                        </div>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Kandy City</p>
+                        
+                        <div class="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-800">
+                            <div>
+                                <span class="text-xs text-slate-500 dark:text-slate-400">From</span>
+                                <p class="text-lg font-medium text-slate-900 dark:text-white">Rs. 18,500 <span class="text-xs text-slate-500">/night</span></p>
+                            </div>
+                            <a href="#" class="text-brand-500 text-sm font-medium hover:text-brand-600 transition-colors">Details →</a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Community CTA (Split layout, high visual impact) -->
+    <section class="py-24 md:py-32">
+        <div class="max-w-[1400px] mx-auto px-6 md:px-12">
+            <div class="flex flex-col lg:flex-row items-center gap-16 lg:gap-24">
+                
+                <!-- Image Side -->
+                <div class="w-full lg:w-1/2 relative reveal-fade">
+                    <div class="aspect-[4/5] rounded-[2rem] overflow-hidden relative">
+                        <img src="https://images.unsplash.com/photo-1526402927236-419b4eefcbcd?q=80&w=1200&auto=format&fit=crop" alt="Community" class="w-full h-full object-cover">
+                        <!-- Soft overlay for depth -->
+                        <div class="absolute inset-0 bg-slate-900/10"></div>
+                    </div>
+                    <!-- Decorative element -->
+                    <div class="absolute -bottom-8 -right-8 w-48 h-48 bg-brand-500/10 rounded-full blur-3xl z-[-1]"></div>
+                </div>
+
+                <!-- Text Side -->
+                <div class="w-full lg:w-1/2 reveal-fade delay-100">
+                    <p class="text-brand-500 font-medium tracking-[0.2em] uppercase text-xs mb-4">Join The Community</p>
+                    <h2 class="text-4xl md:text-5xl lg:text-6xl font-serif text-slate-900 dark:text-white leading-tight mb-6">
+                        Share your <br/> <span class="italic text-brand-500">discoveries.</span>
+                    </h2>
+                    <p class="text-slate-600 dark:text-slate-400 text-lg mb-10 max-w-lg leading-relaxed">
+                        Know a hidden waterfall? Own a beautiful boutique villa? Add it to our platform and help travelers experience the authentic Sri Lanka.
+                    </p>
+                    
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <button class="bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-8 py-4 rounded-full text-sm font-medium transition-transform hover:scale-105 flex items-center justify-center gap-2">
+                            Add a Destination
+                        </button>
+                        <button class="bg-transparent border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white px-8 py-4 rounded-full text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors flex items-center justify-center gap-2">
+                            List your Property
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Minimalist Footer -->
+    <footer class="bg-surface-light dark:bg-surface-dark border-t border-slate-200 dark:border-slate-800 pt-20 pb-10 transition-colors duration-500">
+        <div class="max-w-[1400px] mx-auto px-6 md:px-12">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-12 lg:gap-8 mb-16">
+                
+                <!-- Brand Col -->
+                <div class="md:col-span-12 lg:col-span-4">
+                    <div class="flex items-center gap-2 mb-6">
+                        <span class="font-serif font-semibold text-2xl tracking-wide dark:text-white text-slate-900">TravelGuide.lk</span>
+                    </div>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed max-w-sm mb-8">
+                        Curating the most beautiful destinations and stays across Sri Lanka. A community-driven platform for travelers and hosts.
+                    </p>
+                    <div class="flex gap-4">
+                        <a href="#" class="w-10 h-10 rounded-full border border-slate-200 dark:border-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                            <i class="ph-fill ph-instagram-logo text-lg"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full border border-slate-200 dark:border-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                            <i class="ph-fill ph-twitter-logo text-lg"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Links Cols -->
+                <div class="md:col-span-4 lg:col-span-2 lg:col-start-7">
+                    <h4 class="text-sm font-medium text-slate-900 dark:text-white uppercase tracking-wider mb-6">Explore</h4>
+                    <ul class="space-y-4 text-sm text-slate-500 dark:text-slate-400">
+                        <li><a href="#" class="hover:text-brand-500 transition-colors">Destinations</a></li>
+                        <li><a href="#" class="hover:text-brand-500 transition-colors">Villas & Stays</a></li>
+                        <li><a href="#" class="hover:text-brand-500 transition-colors">Districts Map</a></li>
+                    </ul>
+                </div>
+
+                <div class="md:col-span-4 lg:col-span-2">
+                    <h4 class="text-sm font-medium text-slate-900 dark:text-white uppercase tracking-wider mb-6">Community</h4>
+                    <ul class="space-y-4 text-sm text-slate-500 dark:text-slate-400">
+                        <li><a href="#" class="hover:text-brand-500 transition-colors">Submit Place</a></li>
+                        <li><a href="#" class="hover:text-brand-500 transition-colors">Host Guidelines</a></li>
+                        <li><a href="#" class="hover:text-brand-500 transition-colors">Leave a Review</a></li>
+                    </ul>
+                </div>
+
+                <div class="md:col-span-4 lg:col-span-2">
+                    <h4 class="text-sm font-medium text-slate-900 dark:text-white uppercase tracking-wider mb-6">Legal</h4>
+                    <ul class="space-y-4 text-sm text-slate-500 dark:text-slate-400">
+                        <li><a href="#" class="hover:text-brand-500 transition-colors">Privacy Policy</a></li>
+                        <li><a href="#" class="hover:text-brand-500 transition-colors">Terms of Service</a></li>
+                        <li><a href="#" class="hover:text-brand-500 transition-colors">Contact</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="border-t border-slate-200 dark:border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-xs text-slate-500 dark:text-slate-400">&copy; 2026 TravelGuide.lk. Crafted for Sri Lanka.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // --- Theme Management (Dark/Light Mode) ---
+            const themeToggleBtn = document.getElementById('theme-toggle');
+            const htmlElement = document.documentElement;
+            const heroOverlay = document.getElementById('hero-overlay');
+
+            // Default to dark mode based on initial HTML class
+            let isDarkMode = htmlElement.classList.contains('dark');
+
+            function updateThemeUI() {
+                if (isDarkMode) {
+                    htmlElement.classList.add('dark');
+                    htmlElement.classList.remove('light');
+                    if(heroOverlay) {
+                        heroOverlay.classList.remove('hero-overlay-light');
+                        heroOverlay.classList.add('hero-overlay-dark');
+                    }
+                } else {
+                    htmlElement.classList.remove('dark');
+                    htmlElement.classList.add('light');
+                    if(heroOverlay) {
+                        heroOverlay.classList.remove('hero-overlay-dark');
+                        heroOverlay.classList.add('hero-overlay-light');
+                    }
+                }
+            }
+
+            themeToggleBtn.addEventListener('click', () => {
+                isDarkMode = !isDarkMode;
+                updateThemeUI();
+            });
+
+            // Initialize correct overlay on load
+            updateThemeUI();
+
+            // --- Navbar Scroll Effect ---
+            const navbar = document.getElementById('navbar');
+
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 50) {
+                    // Add background blur when scrolling down
+                    navbar.classList.add('bg-white/80', 'dark:bg-slate-900/80', 'backdrop-blur-xl', 'shadow-sm', 'py-4');
+                    navbar.classList.remove('py-6');
+                } else {
+                    // Transparent at top
+                    navbar.classList.remove('bg-white/80', 'dark:bg-slate-900/80', 'backdrop-blur-xl', 'shadow-sm', 'py-4');
+                    navbar.classList.add('py-6');
+                }
+            });
+
+            // --- Mobile Menu Toggle (Full Screen Overlay) ---
+            const btn = document.getElementById('mobile-menu-btn');
+            const menu = document.getElementById('mobile-menu');
+            const mobileLinks = document.querySelectorAll('.mobile-link');
+            let isMenuOpen = false;
+
+            btn.addEventListener('click', () => {
+                isMenuOpen = !isMenuOpen;
+                
+                if (isMenuOpen) {
+                    menu.classList.remove('opacity-0', 'pointer-events-none', 'z-[-1]');
+                    menu.classList.add('opacity-100', 'z-40');
+                    btn.innerHTML = '<i class="ph ph-x text-2xl"></i>';
+                    document.body.style.overflow = 'hidden'; // Prevent scrolling
+                    
+                    // Animate links in
+                    mobileLinks.forEach((link, index) => {
+                        setTimeout(() => {
+                            link.classList.remove('translate-y-4', 'opacity-0');
+                            link.classList.add('translate-y-0', 'opacity-100');
+                        }, 100 * index);
+                    });
+
+                } else {
+                    menu.classList.add('opacity-0', 'pointer-events-none');
+                    setTimeout(() => {
+                        menu.classList.add('z-[-1]');
+                        menu.classList.remove('z-40');
+                    }, 500); // Wait for transition
+                    
+                    btn.innerHTML = '<i class="ph ph-list text-2xl"></i>';
+                    document.body.style.overflow = '';
+                    
+                    // Reset links
+                    mobileLinks.forEach(link => {
+                        link.classList.add('translate-y-4');
+                    });
+                }
+            });
+
+            // --- Intersection Observer for Scroll Animations ---
+            const revealElements = document.querySelectorAll('.reveal-fade');
+            
+            const revealOptions = {
+                threshold: 0.15,
+                rootMargin: "0px 0px -50px 0px"
+            };
+
+            const revealOnScroll = new IntersectionObserver(function(entries, observer) {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, revealOptions);
+
+            revealElements.forEach(el => {
+                revealOnScroll.observe(el);
+            });
+        });
+    </script>
+</body>
+</html>
