@@ -1,6 +1,6 @@
 <template>
   <header class="sticky top-0 z-50 w-full glass-nav transition-all duration-300">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10">
       <div class="flex items-center justify-between h-20">
         <!-- Brand Logo (Scrolls to top on click) -->
         <NuxtLink 
@@ -61,7 +61,7 @@
           </NuxtLink>
         </nav>
 
-        <!-- Right Side Actions -->
+        <!-- Right Side: Dark Mode, Submit Action, Auth Profile -->
         <div class="hidden md:flex items-center space-x-3">
           <!-- Dark Mode Toggle Button -->
           <button 
@@ -74,18 +74,18 @@
           </button>
 
           <!-- Submit Community Content Button -->
-          <NuxtLink 
-            to="/submit"
+          <button 
+            @click="handleAddClick"
             class="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white text-sm font-semibold shadow-md shadow-brand-500/20 hover:shadow-glow-brand transition-all duration-300"
           >
             <span>+</span>
             <span>Add Place / Stay</span>
-          </NuxtLink>
+          </button>
 
-          <!-- Role / Dashboard Dropdown -->
-          <div class="relative group">
+          <!-- When Logged In: Role / Dashboard Dropdown -->
+          <div v-if="currentUser" class="relative group">
             <button class="flex items-center gap-2 p-1.5 pr-3 rounded-full border border-slate-200 dark:border-slate-700 bg-white/70 dark:bg-slate-800/70 hover:border-brand-500 transition-colors">
-              <img :src="currentUser.avatarUrl" :alt="currentUser.name" class="w-8 h-8 rounded-full object-cover border border-brand-500/40" />
+              <img :src="currentUser.avatarUrl || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&auto=format&fit=crop'" :alt="currentUser.name" class="w-8 h-8 rounded-full object-cover border border-brand-500/40" />
               <div class="flex flex-col text-left">
                 <span class="text-xs font-semibold text-slate-800 dark:text-slate-100 leading-tight">{{ currentUser.name.split(' ')[0] }}</span>
                 <span class="text-[10px] text-emerald-500 font-medium uppercase tracking-wider">{{ currentUser.role }}</span>
@@ -101,15 +101,40 @@
               <NuxtLink to="/dashboard" class="flex items-center px-4 py-2.5 text-xs text-slate-700 dark:text-slate-200 hover:bg-brand-50 dark:hover:bg-brand-950/50 hover:text-brand-500 transition-colors">
                 👤 My Submissions
               </NuxtLink>
-              <NuxtLink to="/admin" class="flex items-center justify-between px-4 py-2.5 text-xs text-slate-700 dark:text-slate-200 hover:bg-brand-50 dark:hover:bg-brand-950/50 hover:text-brand-500 transition-colors">
+              <NuxtLink v-if="currentUser.role === 'admin'" to="/admin" class="flex items-center justify-between px-4 py-2.5 text-xs text-slate-700 dark:text-slate-200 hover:bg-brand-50 dark:hover:bg-brand-950/50 hover:text-brand-500 transition-colors">
                 <span>🛡️ Admin Moderation</span>
                 <span class="px-1.5 py-0.5 text-[9px] bg-brand-500 text-white rounded-full">{{ pendingSubmissionsCount }}</span>
               </NuxtLink>
+              <div class="pt-1 border-t border-slate-100 dark:border-slate-800">
+                <button 
+                  @click="logout" 
+                  class="w-full text-left px-4 py-2 text-xs text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 font-semibold flex items-center gap-2"
+                >
+                  <span>🚪</span>
+                  <span>Log Out</span>
+                </button>
+              </div>
             </div>
+          </div>
+
+          <!-- When Guest (Not Logged In): Log In / Sign Up Buttons -->
+          <div v-else class="flex items-center gap-2">
+            <button 
+              @click="openAuthModal('login')"
+              class="px-3.5 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 hover:text-brand-500 dark:hover:text-brand-400 transition-colors"
+            >
+              Log In
+            </button>
+            <button 
+              @click="openAuthModal('register')"
+              class="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 text-white text-xs font-bold transition-colors"
+            >
+              Sign Up
+            </button>
           </div>
         </div>
 
-        <!-- Mobile Menu Button -->
+        <!-- Mobile Menu Hamburger Button -->
         <div class="flex items-center space-x-2 md:hidden">
           <button 
             @click="toggleDarkMode" 
@@ -175,28 +200,53 @@
       >
         📍 Districts Directory
       </NuxtLink>
-      <NuxtLink 
-        @click="mobileMenuOpen = false" 
-        to="/dashboard" 
-        class="block px-4 py-2.5 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-200"
-      >
-        👤 My Submissions
-      </NuxtLink>
-      <NuxtLink 
-        @click="mobileMenuOpen = false" 
-        to="/admin" 
-        class="block px-4 py-2.5 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-200"
-      >
-        🛡️ Admin Moderation ({{ pendingSubmissionsCount }})
-      </NuxtLink>
-      <div class="pt-2">
+
+      <!-- Auth section in Mobile Drawer -->
+      <div v-if="currentUser" class="pt-2 border-t border-slate-200 dark:border-slate-800 space-y-2">
         <NuxtLink 
           @click="mobileMenuOpen = false" 
-          to="/submit"
-          class="block w-full text-center py-3 rounded-xl bg-brand-500 text-white font-semibold shadow-md shadow-brand-500/20"
+          to="/dashboard" 
+          class="block px-4 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200"
+        >
+          👤 My Submissions ({{ currentUser.name }})
+        </NuxtLink>
+        <NuxtLink 
+          v-if="currentUser.role === 'admin'"
+          @click="mobileMenuOpen = false" 
+          to="/admin" 
+          class="block px-4 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200"
+        >
+          🛡️ Admin Moderation ({{ pendingSubmissionsCount }})
+        </NuxtLink>
+        <button 
+          @click="handleMobileLogout"
+          class="w-full text-left px-4 py-2 rounded-xl text-xs text-rose-500 font-bold"
+        >
+          🚪 Log Out
+        </button>
+      </div>
+      <div v-else class="pt-2 border-t border-slate-200 dark:border-slate-800 flex gap-2">
+        <button 
+          @click="openAuthModal('login'); mobileMenuOpen = false"
+          class="flex-1 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-bold text-slate-700 dark:text-slate-200"
+        >
+          Log In
+        </button>
+        <button 
+          @click="openAuthModal('register'); mobileMenuOpen = false"
+          class="flex-1 py-2.5 rounded-xl bg-brand-500 text-white text-xs font-bold"
+        >
+          Sign Up
+        </button>
+      </div>
+
+      <div class="pt-2">
+        <button 
+          @click="handleAddClick(); mobileMenuOpen = false"
+          class="block w-full text-center py-3 rounded-xl bg-brand-500 text-white font-semibold shadow-md shadow-brand-500/20 text-xs"
         >
           + Submit Place / Accommodation
-        </NuxtLink>
+        </button>
       </div>
     </div>
   </header>
@@ -204,11 +254,11 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRouter } from 'vue-router'
 import { useTravelData } from '~/composables/useTravelData'
 
-const route = useRoute()
-const { isDarkMode, toggleDarkMode, currentUser, submissions } = useTravelData()
+const router = useRouter()
+const { isDarkMode, toggleDarkMode, currentUser, submissions, logout, openAuthModal } = useTravelData()
 const mobileMenuOpen = ref(false)
 
 const pendingSubmissionsCount = computed(() => {
@@ -227,5 +277,18 @@ const scrollToTop = () => {
 const handleMobileHomeClick = () => {
   mobileMenuOpen.value = false
   scrollToTop()
+}
+
+const handleAddClick = () => {
+  if (!currentUser.value) {
+    openAuthModal('login', 'Please log in to submit a tourist place or accommodation.')
+  } else {
+    router.push('/submit')
+  }
+}
+
+const handleMobileLogout = () => {
+  logout()
+  mobileMenuOpen.value = false
 }
 </script>

@@ -135,7 +135,7 @@
               </div>
 
               <button 
-                @click="reviewModalOpen = true"
+                @click="handleWriteReviewClick"
                 class="px-4 py-2 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-bold text-xs shadow-md shadow-brand-500/20"
               >
                 + Write a Review
@@ -290,7 +290,7 @@ import { useRoute } from 'vue-router'
 import { useTravelData } from '~/composables/useTravelData'
 
 const route = useRoute()
-const { places, stays, reviews, likedPlaceIds, toggleLikePlace, addReview } = useTravelData()
+const { places, stays, reviews, likedPlaceIds, toggleLikePlace, addReview, currentUser, openAuthModal } = useTravelData()
 
 const slug = String(route.params.slug)
 const place = computed(() => places.value.find(p => p.slug === slug || p.id === slug))
@@ -298,6 +298,14 @@ const place = computed(() => places.value.find(p => p.slug === slug || p.id === 
 const isLiked = computed(() => place.value ? likedPlaceIds.value.includes(place.value.id) : false)
 const toggleLike = () => {
   if (place.value) toggleLikePlace(place.value.id)
+}
+
+const handleWriteReviewClick = () => {
+  if (!currentUser.value) {
+    openAuthModal('login', `Please log in to review ${place.value?.name || 'this place'}.`)
+  } else {
+    reviewModalOpen.value = true
+  }
 }
 
 const activeImage = ref('')

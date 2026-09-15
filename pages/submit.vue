@@ -35,8 +35,31 @@
       </div>
     </div>
 
-    <!-- Multi-Step Form Container -->
-    <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200/80 dark:border-slate-800 shadow-xl space-y-8">
+    <!-- If Not Logged In: Guest Login Card -->
+    <div v-if="!currentUser" class="p-8 sm:p-12 text-center glass-panel rounded-3xl border border-slate-200 dark:border-slate-800 space-y-4 max-w-lg mx-auto">
+      <span class="text-4xl">🔒</span>
+      <h3 class="text-xl font-bold text-slate-900 dark:text-white">Authentication Required</h3>
+      <p class="text-xs text-slate-500 leading-relaxed">
+        To maintain listing quality and let you track your submissions, you must be logged in to contribute places or accommodations.
+      </p>
+      <div class="pt-2 flex justify-center gap-3">
+        <button 
+          @click="openAuthModal('login', 'Please log in to submit a location.')"
+          class="px-5 py-2.5 rounded-xl bg-brand-500 text-white font-bold text-xs shadow-md shadow-brand-500/20"
+        >
+          Log In
+        </button>
+        <button 
+          @click="openAuthModal('register', 'Create an account to submit a location.')"
+          class="px-5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold text-xs"
+        >
+          Sign Up
+        </button>
+      </div>
+    </div>
+
+    <!-- Multi-Step Form Container (When Logged In) -->
+    <div v-else class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200/80 dark:border-slate-800 shadow-xl space-y-8">
       
       <!-- Step Progress Bar -->
       <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4 text-xs font-bold">
@@ -321,7 +344,7 @@ import type { PlaceCategory, StayType } from '~/types'
 
 const router = useRouter()
 const route = useRoute()
-const { districts, submitPlace, submitStay } = useTravelData()
+const { districts, submitPlace, submitStay, currentUser, openAuthModal } = useTravelData()
 
 const submissionType = ref<'place' | 'stay'>((route.query.type as any) === 'stay' ? 'stay' : 'place')
 const currentStep = ref(1)
