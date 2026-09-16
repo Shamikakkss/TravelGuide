@@ -6,7 +6,7 @@
       <!-- Background Image with Ambient Glow -->
       <div class="absolute inset-0 z-0">
         <img 
-          src="https://images.unsplash.com/photo-1586861635167-e5223aadc9fe?q=80&w=2200&auto=format&fit=crop" 
+          src="/images/ella1.jpg" 
           alt="Nine Arches Bridge Ella Sri Lanka" 
           class="w-full h-full object-cover object-center transform scale-105"
         />
@@ -56,7 +56,7 @@
           <!-- Card 1: Districts -->
           <div class="stat-card-clean p-5 sm:p-6 rounded-2xl text-center flex flex-col justify-center items-center hover:translate-y-[-4px] transition-all duration-300">
             <span class="text-2xl mb-2 opacity-80">🗺️</span>
-            <p class="text-4xl sm:text-5xl font-extrabold text-brand-300 font-sans leading-none">25</p>
+            <p class="text-4xl sm:text-5xl font-extrabold text-brand-300 font-sans leading-none">{{ districts.length }}</p>
             <p class="text-[10px] sm:text-[11px] uppercase tracking-[0.2em] text-white/50 font-semibold mt-2">Districts</p>
           </div>
 
@@ -135,7 +135,7 @@
               v-model="filters.district" 
               class="w-full px-3 py-3 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-transparent focus:border-brand-500 text-slate-900 dark:text-white text-xs outline-none cursor-pointer"
             >
-              <option value="All">All 25 Districts</option>
+              <option value="All">All Districts</option>
               <option v-for="d in districts" :key="d.id" :value="d.name">{{ d.name }}</option>
             </select>
           </div>
@@ -302,7 +302,7 @@
           to="/districts" 
           class="px-5 py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-brand-500 hover:text-white text-slate-900 dark:text-white text-xs font-bold transition-all"
         >
-          All 25 Districts →
+          Explore All Districts →
         </NuxtLink>
       </div>
 

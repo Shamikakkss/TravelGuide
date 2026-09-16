@@ -6,10 +6,10 @@ import {
   initialReviews,
   initialSubmissions
 } from '~/data/sriLankaData'
-import type { Place, Stay, District, Town, Review, Submission, FilterState, PlaceCategory, StayType } from '~/types'
+import type { Place, Stay, District, Town, Review, Submission, FilterState, PlaceCategory, StayType, User } from '~/types'
 
 export const useTravelData = () => {
-  // Global reactive states
+  // Global reactive states with fallback to initial data
   const districts = useState<District[]>('districts', () => sriLankaDistricts)
   const towns = useState<Town[]>('towns', () => sriLankaTowns)
   const places = useState<Place[]>('places', () => initialPlaces)
@@ -19,14 +19,118 @@ export const useTravelData = () => {
   const likedPlaceIds = useState<string[]>('likedPlaceIds', () => ['place-nine-arch'])
   const likedStayIds = useState<string[]>('likedStayIds', () => ['stay-mirissa-ocean-villa'])
 
-  // Current logged in mock user / role
-  const currentUser = useState('currentUser', () => ({
-    id: 'usr-current',
-    name: 'Shaminda (Traveler)',
-    email: 'traveler@travelguide.lk',
-    role: 'admin' as 'admin' | 'user' | 'owner',
-    avatarUrl: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&auto=format&fit=crop'
+  // Fetch all data from database API endpoints
+  const loadDataFromApi = async () => {
+    try {
+      const [districtsRes, placesRes, staysRes, reviewsRes, submissionsRes] = await Promise.allSettled([
+        $fetch<{ districts: District[]; towns: Town[] }>('/api/districts'),
+        $fetch<Place[]>('/api/places'),
+        $fetch<Stay[]>('/api/stays'),
+        $fetch<Review[]>('/api/reviews'),
+        $fetch<Submission[]>('/api/submissions')
+      ])
+
+      if (districtsRes.status === 'fulfilled' && districtsRes.value?.districts?.length) {
+        districts.value = districtsRes.value.districts
+        towns.value = districtsRes.value.towns || sriLankaTowns
+      }
+
+      if (placesRes.status === 'fulfilled' && placesRes.value?.length) {
+        places.value = placesRes.value
+      }
+
+      if (staysRes.status === 'fulfilled' && staysRes.value?.length) {
+        stays.value = staysRes.value
+      }
+
+      if (reviewsRes.status === 'fulfilled' && reviewsRes.value?.length) {
+        reviews.value = reviewsRes.value
+      }
+
+      if (submissionsRes.status === 'fulfilled' && submissionsRes.value) {
+        submissions.value = submissionsRes.value
+      }
+    } catch (e) {
+      console.warn('API fetch fallback to local initial state:', e)
+    }
+  }
+
+  // Load from API on mount
+  if (process.client) {
+    onMounted(() => {
+      loadDataFromApi()
+    })
+  }
+
+  // Auth & Session State
+  const currentUser = useState<User | null>('currentUser', () => null)
+
+  const authModalOpen = useState<boolean>('authModalOpen', () => false)
+  const authModalMode = useState<'login' | 'register'>('authModalMode', () => 'login')
+  const authPromptMessage = useState<string>('authPromptMessage', () => '')
+
+  const openAuthModal = (mode: 'login' | 'register' = 'login', message: string = '') => {
+    authModalMode.value = mode
+    authPromptMessage.value = message
+    authModalOpen.value = true
+  }
+
+  const login = (email: string, role: 'user' | 'owner' | 'admin' = 'user', name?: string) => {
+    currentUser.value = {
+      id: `usr-${Date.now()}`,
+      name: name || (email.split('@')[0] || 'Traveler'),
+      email: email,
+      role: role,
+      avatarUrl: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&auto=format&fit=crop'
+    }
+    authModalOpen.value = false
+    authPromptMessage.value = ''
+  }
+
+  const logout = () => {
+    currentUser.value = null
+  }
+
+  const quickDemoLogin = (role: 'user' | 'owner' | 'admin') => {
+    if (role === 'admin') {
+      login('admin@travelguide.lk', 'admin', 'Sachintha (Admin)')
+    } else if (role === 'owner') {
+      login('villaowner@travelguide.lk', 'owner', 'Sunil (Villa Owner)')
+    } else {
+      login('traveler@travelguide.lk', 'user', 'Kasun (Traveler)')
+    }
+  }
+
+  // Platform Member Ratings
+  const platformRatingStats = useState('platformRatingStats', () => ({
+    average: 4.9,
+    totalCount: 348
   }))
+  
+  const ratedPlatformUserIds = useState<string[]>('ratedPlatformUserIds', () => [])
+
+  const hasUserRatedPlatform = computed(() => {
+    if (!currentUser.value) return false
+    return ratedPlatformUserIds.value.includes(currentUser.value.id)
+  })
+
+  const submitPlatformRating = (score: number): { success: boolean; message: string } => {
+    if (!currentUser.value) {
+      openAuthModal('login', 'Please log in or create an account to rate TravelGuide LK.')
+      return { success: false, message: 'Authentication required' }
+    }
+
+    if (ratedPlatformUserIds.value.includes(currentUser.value.id)) {
+      return { success: false, message: 'You have already submitted a rating for TravelGuide LK.' }
+    }
+
+    const currentTotal = platformRatingStats.value.average * platformRatingStats.value.totalCount
+    platformRatingStats.value.totalCount += 1
+    platformRatingStats.value.average = Number(((currentTotal + score) / platformRatingStats.value.totalCount).toFixed(1))
+    ratedPlatformUserIds.value.push(currentUser.value.id)
+
+    return { success: true, message: 'Thank you for your rating!' }
+  }
 
   // Dark mode state
   const isDarkMode = useState<boolean>('isDarkMode', () => true)
@@ -63,99 +167,140 @@ export const useTravelData = () => {
     return towns.value.filter(t => t.districtId === foundDistrict.id)
   }
 
-  // Toggle Like Place
-  const toggleLikePlace = (placeId: string) => {
+  // Toggle Like Place (Requires Login + Persists to API)
+  const toggleLikePlace = async (placeId: string): Promise<boolean> => {
+    if (!currentUser.value) {
+      openAuthModal('login', 'Please log in to like and save attractions to your favorites.')
+      return false
+    }
+
     const idx = likedPlaceIds.value.indexOf(placeId)
     const targetPlace = places.value.find(p => p.id === placeId)
+    let newLikes = targetPlace ? targetPlace.likesCount : 0
+
     if (idx > -1) {
       likedPlaceIds.value.splice(idx, 1)
-      if (targetPlace) targetPlace.likesCount = Math.max(0, targetPlace.likesCount - 1)
+      newLikes = Math.max(0, newLikes - 1)
+      if (targetPlace) targetPlace.likesCount = newLikes
     } else {
       likedPlaceIds.value.push(placeId)
-      if (targetPlace) targetPlace.likesCount += 1
+      newLikes += 1
+      if (targetPlace) targetPlace.likesCount = newLikes
     }
+
+    // Persist to database in background
+    try {
+      await $fetch(`/api/places/${placeId}`, {
+        method: 'PATCH',
+        body: { likesCount: newLikes }
+      })
+    } catch (e) {
+      console.warn('Failed to persist place like to DB:', e)
+    }
+
+    return true
   }
 
-  // Toggle Like Stay
-  const toggleLikeStay = (stayId: string) => {
+  // Toggle Like Stay (Requires Login + Persists to API)
+  const toggleLikeStay = async (stayId: string): Promise<boolean> => {
+    if (!currentUser.value) {
+      openAuthModal('login', 'Please log in to like and bookmark accommodations.')
+      return false
+    }
+
     const idx = likedStayIds.value.indexOf(stayId)
     const targetStay = stays.value.find(s => s.id === stayId)
+    let newLikes = targetStay ? targetStay.likesCount : 0
+
     if (idx > -1) {
       likedStayIds.value.splice(idx, 1)
-      if (targetStay) targetStay.likesCount = Math.max(0, targetStay.likesCount - 1)
+      newLikes = Math.max(0, newLikes - 1)
+      if (targetStay) targetStay.likesCount = newLikes
     } else {
       likedStayIds.value.push(stayId)
-      if (targetStay) targetStay.likesCount += 1
+      newLikes += 1
+      if (targetStay) targetStay.likesCount = newLikes
     }
+
+    // Persist to database in background
+    try {
+      await $fetch(`/api/stays/${stayId}`, {
+        method: 'PATCH',
+        body: { likesCount: newLikes }
+      })
+    } catch (e) {
+      console.warn('Failed to persist stay like to DB:', e)
+    }
+
+    return true
   }
 
-  // Submit a new Place (community contribution)
-  const submitPlace = (placeData: Partial<Place>) => {
-    const newId = `place-${Date.now()}`
-    const newSubmissionId = `sub-${Date.now()}`
-    const fullPlace: Place = {
-      id: newId,
+  // Submit a new Place (community contribution to DB)
+  const submitPlace = async (placeData: Partial<Place>) => {
+    if (!currentUser.value) {
+      openAuthModal('login', 'Please log in to contribute and submit new attractions.')
+      return null
+    }
+
+    const fullPlace: Partial<Place> = {
       name: placeData.name || 'Untitled Place',
-      slug: (placeData.name || 'place').toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-      district: placeData.district || 'Galle',
-      districtSlug: (placeData.district || 'galle').toLowerCase(),
-      town: placeData.town || 'Galle Fort',
+      district: placeData.district || 'Badulla',
+      town: placeData.town || 'Ella',
       category: (placeData.category as PlaceCategory) || 'Nature',
-      rating: 5.0,
-      reviewsCount: 0,
-      likesCount: 1,
-      coverImage: placeData.coverImage || 'https://images.unsplash.com/photo-1588598198321-9735fd52455b?q=80&w=1200&auto=format&fit=crop',
-      images: placeData.images?.length ? placeData.images : [placeData.coverImage || 'https://images.unsplash.com/photo-1588598198321-9735fd52455b?q=80&w=1200&auto=format&fit=crop'],
+      coverImage: placeData.coverImage || '/images/sigiriya.jpg',
+      images: placeData.images?.length ? placeData.images : [placeData.coverImage || '/images/sigiriya.jpg'],
       shortDescription: placeData.shortDescription || '',
       description: placeData.description || '',
-      latitude: placeData.latitude || 6.0535,
-      longitude: placeData.longitude || 80.2210,
+      latitude: placeData.latitude || 7.8731,
+      longitude: placeData.longitude || 80.7718,
       address: placeData.address || `${placeData.town}, ${placeData.district}`,
       entryFee: placeData.entryFee || 'Free Admission',
       openingHours: placeData.openingHours || '08:00 AM - 06:00 PM',
       bestTimeToVisit: placeData.bestTimeToVisit || 'Morning / Evening',
-      highlights: placeData.highlights || ['Scenic View', 'Photography spot'],
-      status: 'pending',
-      submittedBy: currentUser.value.name,
-      createdAt: new Date().toISOString().split('T')[0]
+      highlights: placeData.highlights || ['Scenic View', 'Photography spot']
     }
 
-    const newSub: Submission = {
-      id: newSubmissionId,
-      type: 'place',
-      title: fullPlace.name,
-      district: fullPlace.district,
-      town: fullPlace.town,
-      submittedBy: currentUser.value.name,
-      userEmail: currentUser.value.email,
-      status: 'pending',
-      submittedAt: new Date().toISOString().split('T')[0],
-      data: fullPlace
+    try {
+      const res = await $fetch<{ success: boolean; submission: Submission }>('/api/submissions', {
+        method: 'POST',
+        body: {
+          type: 'place',
+          title: fullPlace.name,
+          district: fullPlace.district,
+          town: fullPlace.town,
+          submittedBy: currentUser.value.name,
+          userEmail: currentUser.value.email,
+          data: fullPlace
+        }
+      })
+
+      if (res?.submission) {
+        submissions.value.unshift(res.submission)
+        return res.submission
+      }
+    } catch (e) {
+      console.error('Failed to submit place to API:', e)
     }
 
-    submissions.value.unshift(newSub)
-    return newSub
+    return null
   }
 
-  // Submit a new Stay (host/community submission)
-  const submitStay = (stayData: Partial<Stay>) => {
-    const newId = `stay-${Date.now()}`
-    const newSubmissionId = `sub-${Date.now()}`
-    const fullStay: Stay = {
-      id: newId,
+  // Submit a new Stay (host submission to DB)
+  const submitStay = async (stayData: Partial<Stay>) => {
+    if (!currentUser.value) {
+      openAuthModal('login', 'Please log in to submit and list accommodations.')
+      return null
+    }
+
+    const fullStay: Partial<Stay> = {
       name: stayData.name || 'Untitled Stay',
-      slug: (stayData.name || 'stay').toLowerCase().replace(/[^a-z0-9]+/g, '-'),
       district: stayData.district || 'Matara',
-      districtSlug: (stayData.district || 'matara').toLowerCase(),
       town: stayData.town || 'Mirissa',
       type: (stayData.type as StayType) || 'Villa',
-      pricePerNight: Number(stayData.pricePerNight) || 15000,
+      pricePerNight: Number(stayData.pricePerNight) || 25000,
       currency: 'LKR',
-      rating: 5.0,
-      reviewsCount: 0,
-      likesCount: 1,
-      coverImage: stayData.coverImage || 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1200&auto=format&fit=crop',
-      images: stayData.images?.length ? stayData.images : [stayData.coverImage || 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1200&auto=format&fit=crop'],
+      coverImage: stayData.coverImage || '/images/sigiriya.jpg',
+      images: stayData.images?.length ? stayData.images : [stayData.coverImage || '/images/sigiriya.jpg'],
       shortDescription: stayData.shortDescription || '',
       description: stayData.description || '',
       latitude: stayData.latitude || 5.9480,
@@ -165,86 +310,130 @@ export const useTravelData = () => {
       hostName: stayData.hostName || currentUser.value.name,
       hostPhone: stayData.hostPhone || '+94 77 000 0000',
       hostWhatsApp: stayData.hostWhatsApp || '+94770000000',
-      hostIsPublic: true,
-      status: 'pending',
-      submittedBy: currentUser.value.name,
-      createdAt: new Date().toISOString().split('T')[0]
+      hostIsPublic: true
     }
 
-    const newSub: Submission = {
-      id: newSubmissionId,
-      type: 'stay',
-      title: fullStay.name,
-      district: fullStay.district,
-      town: fullStay.town,
-      submittedBy: currentUser.value.name,
-      userEmail: currentUser.value.email,
-      status: 'pending',
-      submittedAt: new Date().toISOString().split('T')[0],
-      data: fullStay
+    try {
+      const res = await $fetch<{ success: boolean; submission: Submission }>('/api/submissions', {
+        method: 'POST',
+        body: {
+          type: 'stay',
+          title: fullStay.name,
+          district: fullStay.district,
+          town: fullStay.town,
+          submittedBy: currentUser.value.name,
+          userEmail: currentUser.value.email,
+          data: fullStay
+        }
+      })
+
+      if (res?.submission) {
+        submissions.value.unshift(res.submission)
+        return res.submission
+      }
+    } catch (e) {
+      console.error('Failed to submit stay to API:', e)
     }
 
-    submissions.value.unshift(newSub)
-    return newSub
+    return null
   }
 
-  // Admin approval action
-  const approveSubmission = (submissionId: string) => {
-    const sub = submissions.value.find(s => s.id === submissionId)
-    if (!sub) return
-    sub.status = 'approved'
+  // Admin approval action (Updates SQLite DB)
+  const approveSubmission = async (submissionId: string) => {
+    try {
+      const res = await $fetch<{ success: boolean; submission: Submission }>(`/api/submissions/${submissionId}`, {
+        method: 'PATCH',
+        body: { status: 'approved' }
+      })
 
-    if (sub.type === 'place') {
-      const placeObj = { ...sub.data, status: 'approved' } as Place
-      // If not already in places, add it
-      if (!places.value.some(p => p.id === placeObj.id)) {
-        places.value.unshift(placeObj)
-      }
-    } else if (sub.type === 'stay') {
-      const stayObj = { ...sub.data, status: 'approved' } as Stay
-      if (!stays.value.some(s => s.id === stayObj.id)) {
-        stays.value.unshift(stayObj)
-      }
+      const sub = submissions.value.find(s => s.id === submissionId)
+      if (sub) sub.status = 'approved'
+
+      // Reload places and stays from DB
+      const [placesRes, staysRes] = await Promise.all([
+        $fetch<Place[]>('/api/places'),
+        $fetch<Stay[]>('/api/stays')
+      ])
+      if (placesRes) places.value = placesRes
+      if (staysRes) stays.value = staysRes
+    } catch (e) {
+      console.error('Failed to approve submission:', e)
     }
   }
 
   // Admin rejection action
-  const rejectSubmission = (submissionId: string, reason: string = 'Incomplete details or duplicate listing') => {
-    const sub = submissions.value.find(s => s.id === submissionId)
-    if (!sub) return
-    sub.status = 'rejected'
-    sub.rejectionReason = reason
+  const rejectSubmission = async (submissionId: string, reason: string = 'Incomplete details or duplicate listing') => {
+    try {
+      await $fetch<{ success: boolean; submission: Submission }>(`/api/submissions/${submissionId}`, {
+        method: 'PATCH',
+        body: { status: 'rejected', reason }
+      })
+
+      const sub = submissions.value.find(s => s.id === submissionId)
+      if (sub) {
+        sub.status = 'rejected'
+        sub.rejectionReason = reason
+      }
+    } catch (e) {
+      console.error('Failed to reject submission:', e)
+    }
   }
 
-  // Add a review
-  const addReview = (targetType: 'place' | 'stay', targetId: string, rating: number, comment: string) => {
-    const newRev: Review = {
-      id: `rev-${Date.now()}`,
-      targetType,
-      targetId,
-      userId: currentUser.value.id,
-      userName: currentUser.value.name,
-      userAvatar: currentUser.value.avatarUrl,
-      rating,
-      comment,
-      status: 'approved',
-      createdAt: new Date().toISOString().split('T')[0]
-    }
-    reviews.value.unshift(newRev)
+  // Add a review (Persists to SQLite DB)
+  const addReview = async (reviewInput: {
+    targetType: 'place' | 'stay'
+    targetId: string
+    rating: number
+    comment: string
+    userName?: string
+  }) => {
+    const userName = reviewInput.userName || currentUser.value?.name || 'Traveler'
+    const userAvatar = currentUser.value?.avatarUrl || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&auto=format&fit=crop'
 
-    // recalculate target rating
-    if (targetType === 'place') {
-      const target = places.value.find(p => p.id === targetId)
-      if (target) {
-        target.reviewsCount += 1
+    try {
+      const res = await $fetch<{
+        success: boolean
+        review: Review
+        newRating: number
+        newCount: number
+      }>('/api/reviews', {
+        method: 'POST',
+        body: {
+          targetType: reviewInput.targetType,
+          targetId: reviewInput.targetId,
+          rating: reviewInput.rating,
+          comment: reviewInput.comment,
+          userName: userName,
+          userAvatar: userAvatar,
+          userId: currentUser.value?.id || 'usr-guest'
+        }
+      })
+
+      if (res?.review) {
+        reviews.value.unshift(res.review)
+
+        // Update local place or stay counts
+        if (reviewInput.targetType === 'place') {
+          const p = places.value.find(item => item.id === reviewInput.targetId)
+          if (p) {
+            p.rating = res.newRating
+            p.reviewsCount = res.newCount
+          }
+        } else {
+          const s = stays.value.find(item => item.id === reviewInput.targetId)
+          if (s) {
+            s.rating = res.newRating
+            s.reviewsCount = res.newCount
+          }
+        }
+
+        return res.review
       }
-    } else {
-      const target = stays.value.find(s => s.id === targetId)
-      if (target) {
-        target.reviewsCount += 1
-      }
+    } catch (e) {
+      console.error('Failed to post review to API:', e)
     }
-    return newRev
+
+    return null
   }
 
   return {
@@ -259,6 +448,17 @@ export const useTravelData = () => {
     currentUser,
     isDarkMode,
     globalFilter,
+    platformRatingStats,
+    hasUserRatedPlatform,
+    authModalOpen,
+    authModalMode,
+    authPromptMessage,
+    loadDataFromApi,
+    openAuthModal,
+    login,
+    logout,
+    quickDemoLogin,
+    submitPlatformRating,
     toggleDarkMode,
     getTownsByDistrict,
     toggleLikePlace,

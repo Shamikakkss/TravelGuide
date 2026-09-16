@@ -28,7 +28,7 @@
           v-model="selectedDistrict" 
           class="w-full px-3 py-3 rounded-2xl bg-slate-100/80 dark:bg-slate-800/80 border border-transparent focus:border-brand-500 dark:focus:border-brand-500 focus:bg-white dark:focus:bg-slate-900 text-slate-900 dark:text-white text-sm outline-none transition-all cursor-pointer"
         >
-          <option value="All">All 25 Districts</option>
+          <option value="All">All Districts</option>
           <option v-for="d in districts" :key="d.id" :value="d.name">
             {{ d.name }}
           </option>

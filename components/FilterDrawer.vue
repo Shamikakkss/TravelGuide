@@ -170,7 +170,7 @@
           v-model="filters.district" 
           class="w-full p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-transparent dark:border-slate-700 text-xs text-slate-900 dark:text-white outline-none cursor-pointer"
         >
-          <option value="All">All 25 Districts</option>
+          <option value="All">All Districts</option>
           <option v-for="d in districts" :key="d.id" :value="d.name">{{ d.name }}</option>
         </select>
       </div>

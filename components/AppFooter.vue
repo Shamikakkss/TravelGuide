@@ -31,7 +31,7 @@
             <li><NuxtLink to="/explore" class="hover:text-brand-500 transition-colors">All Destinations</NuxtLink></li>
             <li><NuxtLink to="/places" class="hover:text-brand-500 transition-colors">Top Attractions</NuxtLink></li>
             <li><NuxtLink to="/stays" class="hover:text-brand-500 transition-colors">Boutique Villas & Stays</NuxtLink></li>
-            <li><NuxtLink to="/districts" class="hover:text-brand-500 transition-colors">25 Districts Guide</NuxtLink></li>
+            <li><NuxtLink to="/districts" class="hover:text-brand-500 transition-colors">Districts Guide</NuxtLink></li>
           </ul>
         </div>
 

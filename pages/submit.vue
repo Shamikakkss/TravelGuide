@@ -1,62 +1,45 @@
 <template>
-  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 py-12 space-y-8">
+    
     <!-- Header -->
     <div class="text-center space-y-2">
-      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-50 dark:bg-brand-950 text-brand-600 dark:text-brand-400 text-xs font-bold">
-        <span>🤝 Community Contribution Portal</span>
-      </div>
-      <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white font-serif">
-        Submit Place or Accommodation
+      <span class="px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-brand-500/10 text-brand-500 border border-brand-500/20">
+        Community Contribution & Host Onboarding
+      </span>
+      <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white font-sans">
+        Submit a New Listing
       </h1>
-      <p class="text-sm text-slate-500 dark:text-slate-400 max-w-xl mx-auto">
-        Share hidden gems or list your boutique villa. All submissions undergo admin moderation before appearing publicly.
+      <p class="text-xs sm:text-sm text-slate-500 max-w-md mx-auto">
+        Share a hidden attraction or list your boutique villa with travelers exploring Sri Lanka.
       </p>
     </div>
 
-    <!-- Type Selection Toggle: Place vs Stay -->
+    <!-- Type Switcher Tabs (Attraction vs Stay) -->
     <div class="flex justify-center">
-      <div class="inline-flex p-1.5 bg-slate-100 dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700">
+      <div class="p-1 bg-slate-100 dark:bg-slate-800 rounded-2xl border border-slate-200/60 dark:border-slate-700/60 flex max-w-md w-full">
         <button 
           @click="submissionType = 'place'"
-          class="flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-bold transition-all"
-          :class="submissionType === 'place' ? 'bg-white dark:bg-slate-900 text-brand-500 shadow-md' : 'text-slate-600 dark:text-slate-400'"
+          class="flex-1 py-3 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2"
+          :class="submissionType === 'place' ? 'bg-white dark:bg-slate-900 text-brand-500 shadow-sm' : 'text-slate-500'"
         >
           <span>🏔️</span>
-          <span>Tourist Attraction</span>
+          <span>Attraction / Place</span>
         </button>
         <button 
           @click="submissionType = 'stay'"
-          class="flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-bold transition-all"
-          :class="submissionType === 'stay' ? 'bg-white dark:bg-slate-900 text-brand-500 shadow-md' : 'text-slate-600 dark:text-slate-400'"
+          class="flex-1 py-3 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2"
+          :class="submissionType === 'stay' ? 'bg-white dark:bg-slate-900 text-brand-500 shadow-sm' : 'text-slate-500'"
         >
           <span>🏡</span>
-          <span>Villa / Stay</span>
+          <span>Boutique Stay / Villa</span>
         </button>
       </div>
     </div>
 
-    <!-- If Not Logged In: Guest Login Card -->
-    <div v-if="!currentUser" class="p-8 sm:p-12 text-center glass-panel rounded-3xl border border-slate-200 dark:border-slate-800 space-y-4 max-w-lg mx-auto">
-      <span class="text-4xl">🔒</span>
-      <h3 class="text-xl font-bold text-slate-900 dark:text-white">Authentication Required</h3>
-      <p class="text-xs text-slate-500 leading-relaxed">
-        To maintain listing quality and let you track your submissions, you must be logged in to contribute places or accommodations.
-      </p>
-      <div class="pt-2 flex justify-center">
-        <button 
-          @click="openAuthModal('login', 'Please log in to submit a location.')"
-          class="px-6 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-bold text-xs shadow-md shadow-brand-500/20 active:scale-95 transition-all flex items-center gap-2"
-        >
-          <span>👤</span>
-          <span>Log In / Sign Up</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- Multi-Step Form Container (When Logged In) -->
-    <div v-else class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200/80 dark:border-slate-800 shadow-xl space-y-8">
+    <!-- Multi-Step Form Card -->
+    <div class="p-6 sm:p-10 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-subtle space-y-8">
       
-      <!-- Step Progress Bar -->
+      <!-- Stepper Indicator -->
       <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4 text-xs font-bold">
         <div 
           v-for="(st, idx) in steps" 
@@ -124,6 +107,7 @@
             <option v-for="c in categories" :key="c" :value="c">{{ c }}</option>
           </select>
         </div>
+
         <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Accommodation Type *</label>
@@ -243,24 +227,62 @@
         </div>
       </div>
 
-      <!-- Step 4: Images & Photo URLs -->
-      <div v-if="currentStep === 4" class="space-y-4 animate-fadeIn">
-        <h3 class="text-base font-bold text-slate-900 dark:text-white">Step 4: Image Media</h3>
+      <!-- Step 4: Images & Photo Uploads (Real File Upload + URL) -->
+      <div v-if="currentStep === 4" class="space-y-6 animate-fadeIn">
+        <h3 class="text-base font-bold text-slate-900 dark:text-white">Step 4: Image & Photography</h3>
         
-        <div>
-          <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Main Cover Photo URL *</label>
+        <!-- File Upload Zone -->
+        <div class="space-y-3">
+          <label class="block text-xs font-bold uppercase text-slate-500">Upload Photo from your Computer</label>
+          <div 
+            @dragover.prevent="isDragging = true"
+            @dragleave.prevent="isDragging = false"
+            @drop.prevent="handleFileDrop"
+            class="border-2 border-dashed rounded-3xl p-8 text-center transition-all cursor-pointer relative"
+            :class="isDragging ? 'border-brand-500 bg-brand-50/20 dark:bg-brand-950/30' : 'border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40 hover:border-brand-500/50'"
+            @click="triggerFileInput"
+          >
+            <input 
+              ref="fileInputRef" 
+              type="file" 
+              accept="image/jpeg,image/png,image/webp" 
+              class="hidden" 
+              @change="handleFileSelect"
+            />
+
+            <div v-if="uploading" class="space-y-3 py-4">
+              <div class="w-10 h-10 border-3 border-brand-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+              <p class="text-xs font-semibold text-brand-500">Uploading and processing image...</p>
+            </div>
+
+            <div v-else class="space-y-2">
+              <span class="text-3xl block">📸</span>
+              <p class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
+                Drag and drop your image here, or <span class="text-brand-500 underline">browse files</span>
+              </p>
+              <p class="text-[11px] text-slate-400">Supports JPG, PNG, WEBP up to 10MB</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Or Enter URL -->
+        <div class="space-y-1">
+          <label class="block text-xs font-bold uppercase text-slate-500">Or Paste Image URL</label>
           <input 
             v-model="form.coverImage" 
-            type="url" 
-            placeholder="https://images.unsplash.com/..."
+            type="text" 
+            placeholder="/images/sigiriya.jpg or https://..."
             class="w-full p-3.5 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-transparent focus:border-brand-500 text-sm text-slate-900 dark:text-white outline-none"
           />
         </div>
 
         <!-- Image Preview Card -->
         <div v-if="form.coverImage" class="space-y-2">
-          <p class="text-xs font-semibold text-slate-400">Cover Photo Preview:</p>
-          <div class="h-52 w-full rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700">
+          <p class="text-xs font-semibold text-emerald-500 flex items-center gap-1">
+            <span>✓</span>
+            <span>Cover Photo Ready:</span>
+          </p>
+          <div class="h-56 w-full rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 relative bg-slate-900">
             <img :src="form.coverImage" class="w-full h-full object-cover" />
           </div>
         </div>
@@ -294,7 +316,7 @@
         </div>
 
         <p class="text-xs text-slate-500 text-center">
-          By clicking submit, your submission will be routed to the Admin Moderation Queue for review.
+          By clicking submit, your submission will be saved in the SQLite Database and routed to the Admin Moderation Queue.
         </p>
       </div>
 
@@ -321,9 +343,10 @@
         <button 
           v-else
           @click="handleSubmit"
+          :disabled="submitting"
           class="px-8 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-sm shadow-xl shadow-emerald-600/30 active:scale-95 transition-all"
         >
-          🚀 Submit for Moderation
+          {{ submitting ? 'Saving to Database...' : '🚀 Submit for Moderation' }}
         </button>
       </div>
 
@@ -343,6 +366,10 @@ const { districts, submitPlace, submitStay, currentUser, openAuthModal } = useTr
 
 const submissionType = ref<'place' | 'stay'>((route.query.type as any) === 'stay' ? 'stay' : 'place')
 const currentStep = ref(1)
+const submitting = ref(false)
+const uploading = ref(false)
+const isDragging = ref(false)
+const fileInputRef = ref<HTMLInputElement | null>(null)
 
 const steps = ['Details', 'Features', 'Location', 'Media', 'Review']
 
@@ -369,8 +396,49 @@ const form = reactive({
   longitude: 81.0608,
   hostWhatsApp: '+94771234567',
   hostPhone: '+94 77 123 4567',
-  coverImage: 'https://images.unsplash.com/photo-1586861635167-e5223aadc9fe?q=80&w=1200&auto=format&fit=crop'
+  coverImage: '/images/sigiriya.jpg'
 })
+
+// Trigger file input
+const triggerFileInput = () => {
+  fileInputRef.value?.click()
+}
+
+// Upload file helper
+const uploadImageFile = async (file: File) => {
+  uploading.value = true
+  try {
+    const formData = new FormData()
+    formData.append('file', file)
+
+    const response = await $fetch<{ success: boolean; url: string }>('/api/upload', {
+      method: 'POST',
+      body: formData
+    })
+
+    if (response?.url) {
+      form.coverImage = response.url
+    }
+  } catch (error: any) {
+    alert('Failed to upload image: ' + (error.statusMessage || error.message || 'Unknown error'))
+  } finally {
+    uploading.value = false
+  }
+}
+
+const handleFileSelect = (e: Event) => {
+  const target = e.target as HTMLInputElement
+  if (target.files && target.files[0]) {
+    uploadImageFile(target.files[0])
+  }
+}
+
+const handleFileDrop = (e: DragEvent) => {
+  isDragging.value = false
+  if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
+    uploadImageFile(e.dataTransfer.files[0])
+  }
+}
 
 const isCurrentStepValid = computed(() => {
   if (currentStep.value === 1) return !!form.name && !!form.district && !!form.town
@@ -380,46 +448,60 @@ const isCurrentStepValid = computed(() => {
   return true
 })
 
-const handleSubmit = () => {
-  const featuresList = form.featuresInput
-    ? form.featuresInput.split(',').map(s => s.trim()).filter(Boolean)
-    : ['Scenic Experience']
-
-  if (submissionType.value === 'place') {
-    submitPlace({
-      name: form.name,
-      district: form.district,
-      town: form.town,
-      category: form.category,
-      shortDescription: form.shortDescription,
-      description: form.description,
-      highlights: featuresList,
-      address: form.address,
-      latitude: form.latitude,
-      longitude: form.longitude,
-      coverImage: form.coverImage,
-      images: [form.coverImage]
-    })
-  } else {
-    submitStay({
-      name: form.name,
-      district: form.district,
-      town: form.town,
-      type: form.stayType,
-      pricePerNight: form.pricePerNight,
-      shortDescription: form.shortDescription,
-      description: form.description,
-      amenities: featuresList,
-      address: form.address,
-      latitude: form.latitude,
-      longitude: form.longitude,
-      hostWhatsApp: form.hostWhatsApp,
-      hostPhone: form.hostPhone,
-      coverImage: form.coverImage,
-      images: [form.coverImage]
-    })
+const handleSubmit = async () => {
+  if (!currentUser.value) {
+    openAuthModal('login', 'Please log in to submit your listing for moderation.')
+    return
   }
 
-  router.push('/dashboard?submitted=true')
+  submitting.value = true
+
+  const features = form.featuresInput
+    ? form.featuresInput.split(',').map(s => s.trim()).filter(Boolean)
+    : []
+
+  try {
+    if (submissionType.value === 'place') {
+      await submitPlace({
+        name: form.name,
+        district: form.district,
+        town: form.town,
+        category: form.category,
+        shortDescription: form.shortDescription,
+        description: form.description,
+        address: form.address,
+        latitude: form.latitude,
+        longitude: form.longitude,
+        highlights: features,
+        coverImage: form.coverImage,
+        images: [form.coverImage]
+      })
+    } else {
+      await submitStay({
+        name: form.name,
+        district: form.district,
+        town: form.town,
+        type: form.stayType,
+        pricePerNight: form.pricePerNight,
+        shortDescription: form.shortDescription,
+        description: form.description,
+        address: form.address,
+        latitude: form.latitude,
+        longitude: form.longitude,
+        amenities: features,
+        hostWhatsApp: form.hostWhatsApp,
+        hostPhone: form.hostPhone,
+        coverImage: form.coverImage,
+        images: [form.coverImage]
+      })
+    }
+
+    alert('🎉 Thank you! Your listing has been saved to the database and submitted for moderation.')
+    router.push('/dashboard')
+  } catch (e: any) {
+    alert('Submission error: ' + (e.message || 'Please check your input.'))
+  } finally {
+    submitting.value = false
+  }
 }
 </script>

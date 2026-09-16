@@ -1,0 +1,117 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model District {
+  id           String   @id @default(cuid())
+  name         String   @unique
+  slug         String   @unique
+  province     String
+  imageUrl     String
+  description  String
+  popularTowns String   // Stored as JSON string
+  placesCount  Int      @default(0)
+  staysCount   Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Town {
+  id           String   @id @default(cuid())
+  districtId   String
+  districtName String
+  name         String
+  slug         String   @unique
+  createdAt    DateTime @default(now())
+}
+
+model Place {
+  id               String   @id @default(cuid())
+  name             String
+  slug             String   @unique
+  district         String
+  districtSlug     String
+  town             String
+  category         String
+  rating           Float    @default(5.0)
+  reviewsCount     Int      @default(0)
+  likesCount       Int      @default(0)
+  coverImage       String
+  images           String   // Stored as JSON array string
+  shortDescription String
+  description      String
+  latitude         Float
+  longitude        Float
+  address          String
+  entryFee         String?
+  openingHours     String?
+  bestTimeToVisit  String?
+  highlights       String   // Stored as JSON array string
+  status           String   @default("approved") // approved, pending, rejected
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model Stay {
+  id               String   @id @default(cuid())
+  name             String
+  slug             String   @unique
+  district         String
+  districtSlug     String
+  town             String
+  type             String   // Villa, Boutique Hotel, Cabin, Resort, Cottage
+  pricePerNight    Float
+  currency         String   @default("LKR")
+  rating           Float    @default(5.0)
+  reviewsCount     Int      @default(0)
+  likesCount       Int      @default(0)
+  coverImage       String
+  images           String   // Stored as JSON array string
+  shortDescription String
+  description      String
+  latitude         Float
+  longitude        Float
+  address          String
+  amenities        String   // Stored as JSON array string
+  hostName         String
+  hostPhone        String
+  hostWhatsApp     String
+  hostIsPublic     Boolean  @default(true)
+  status           String   @default("approved") // approved, pending, rejected
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model Review {
+  id         String   @id @default(cuid())
+  targetType String   // place or stay
+  targetId   String
+  userId     String?
+  userName   String
+  userAvatar String?
+  rating     Int      @default(5)
+  comment    String
+  status     String   @default("approved")
+  createdAt  DateTime @default(now())
+}
+
+model Submission {
+  id          String   @id @default(cuid())
+  type        String   // place or stay
+  title       String
+  district    String
+  town        String
+  submittedBy String
+  userEmail   String
+  status      String   @default("pending") // pending, approved, rejected
+  submittedAt DateTime @default(now())
+  data        String   // Stored as JSON string
+}
